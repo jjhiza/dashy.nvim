@@ -107,7 +107,6 @@ local function setup_buffer_options(buf_id)
   api.nvim_buf_set_option(buf_id, "modifiable", false)
   api.nvim_buf_set_option(buf_id, "filetype", "dashboard")
   api.nvim_buf_set_option(buf_id, "modified", false)
-  api.nvim_buf_set_name(buf_id, "Dashy")
   
   -- Set buffer keymaps
   local keymaps = safe_require("dashy.keymaps")
