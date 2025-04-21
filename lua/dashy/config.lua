@@ -4,6 +4,9 @@ Handles configuration validation, processing, and access for the Dashy plugin.
 Uses modern Neovim APIs and provides robust type checking and error handling.
 ]]
 
+local api = vim.api
+local utils = require("dashy.utils")
+
 -- Module definition
 ---@class DashyConfig
 local M = {}
@@ -89,48 +92,6 @@ local function validate_value(key, value)
   return true
 end
 
--- Get a value from a nested table using a dot-separated path
----@param tbl table The table to search in
----@param path string The dot-separated path
----@return any value The value at the path, or nil if not found
-local function get_nested(tbl, path)
-  local keys = vim.split(path, ".", { plain = true })
-  local current = tbl
-
-  for _, key in ipairs(keys) do
-    if type(current) ~= "table" then
-      return nil
-    end
-    current = current[key]
-    if current == nil then
-      return nil
-    end
-  end
-
-  return current
-end
-
--- Set a value in a nested table using a dot-separated path
----@param tbl table The table to modify
----@param path string The dot-separated path
----@param value any The value to set
-local function set_nested(tbl, path, value)
-  local keys = vim.split(path, ".", { plain = true })
-  local current = tbl
-
-  for i = 1, #keys - 1 do
-    local key = keys[i]
-    if current[key] == nil then
-      current[key] = {}
-    elseif type(current[key]) ~= "table" then
-      current[key] = {}
-    end
-    current = current[key]
-  end
-
-  current[keys[#keys]] = value
-end
-
 -- Validate the entire configuration
 ---@param cfg DashySetupOptions The configuration to validate
 ---@return boolean valid Whether the configuration is valid
@@ -158,7 +119,7 @@ local function validate_config(cfg)
   
   -- Validate each path
   for path, _ in pairs(to_validate) do
-    local value = get_nested(cfg, path)
+    local value = utils.get_nested(cfg, path)
     if value ~= nil then
       local valid, err = validate_value(path, value)
       if not valid then
@@ -181,7 +142,7 @@ function M.init(cfg)
   end
   
   -- Store the configuration
-  config = vim.deepcopy(cfg)
+  config = utils.deep_copy(cfg)
   
   -- Setup highlight groups
   M.setup_highlights()
@@ -213,10 +174,10 @@ end
 ---@return any value The configuration value, or the entire config if no key is provided
 function M.get(key)
   if not key then
-    return vim.deepcopy(config)
+    return utils.deep_copy(config)
   end
   
-  return vim.deepcopy(get_nested(config, key))
+  return utils.deep_copy(utils.get_nested(config, key))
 end
 
 -- Set a configuration value
@@ -230,7 +191,7 @@ function M.set(key, value)
     return false
   end
   
-  set_nested(config, key, vim.deepcopy(value))
+  utils.set_nested(config, key, utils.deep_copy(value))
   return true
 end
 
@@ -249,7 +210,7 @@ function M.update(updates)
   
   -- Apply all updates
   for key, value in pairs(updates) do
-    set_nested(config, key, vim.deepcopy(value))
+    utils.set_nested(config, key, utils.deep_copy(value))
   end
   
   return true
@@ -258,7 +219,7 @@ end
 -- Reset configuration to defaults
 ---@param defaults DashySetupOptions The default configuration
 function M.reset(defaults)
-  config = vim.deepcopy(defaults)
+  config = utils.deep_copy(defaults)
 end
 
 -- Return the module
