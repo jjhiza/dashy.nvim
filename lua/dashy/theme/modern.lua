@@ -1,8 +1,8 @@
 ---@mod dashy.theme.modern Modern theme for Dashy
 ---@brief [[
-Implements a modern, responsive theme for the Dashy dashboard.
-Features advanced ExtMark usage, responsive design, and dynamic content.
-]]
+-- Implements a modern, responsive theme for the Dashy dashboard.
+-- Features advanced ExtMark usage, responsive design, and dynamic content.
+-- ]]
 
 local api = vim.api
 local uv = vim.uv

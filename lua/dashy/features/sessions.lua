@@ -1,8 +1,8 @@
 ---@mod dashy.features.sessions Session management for Dashy
 ---@brief [[
-Handles session management functionality, including saving, loading,
-and displaying available sessions.
-]]
+-- Handles session management functionality, including saving, loading,
+-- and displaying available sessions.
+-- ]]
 
 local api = vim.api
 local uv = vim.uv

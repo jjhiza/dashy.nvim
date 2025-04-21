@@ -1,8 +1,8 @@
 ---@mod dashy.features.recent Recent files management for Dashy
 ---@brief [[
-Handles tracking and displaying recently opened files, with support for
-file type icons and preview.
-]]
+-- Handles tracking and displaying recently opened files, with support for
+-- file type icons and preview.
+-- ]]
 
 local api = vim.api
 local uv = vim.uv

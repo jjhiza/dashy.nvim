@@ -1,8 +1,8 @@
 ---@mod dashy.highlights Highlight groups for Dashy
 ---@brief [[
-Defines highlight groups for the Dashy dashboard.
-Provides consistent styling across different themes.
-]]
+-- Defines highlight groups for the Dashy dashboard.
+-- Provides consistent styling across different themes.
+-- ]]
 
 local api = vim.api
 

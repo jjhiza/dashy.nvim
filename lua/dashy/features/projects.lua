@@ -1,8 +1,8 @@
 ---@mod dashy.features.projects Project history management for Dashy
 ---@brief [[
-Handles project history functionality, including tracking recently opened projects,
-git integration, and project statistics.
-]]
+-- Handles project history functionality, including tracking recently opened projects,
+-- git integration, and project statistics.
+-- ]]
 
 local api = vim.api
 local uv = vim.uv

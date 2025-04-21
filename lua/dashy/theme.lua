@@ -1,8 +1,8 @@
 ---@mod dashy.theme Theme management for Dashy
 ---@brief [[
-Provides theme management for the Dashy dashboard.
-Includes a default theme and utilities for theme switching.
-]]
+-- Provides theme management for the Dashy dashboard.
+-- Includes a default theme and utilities for theme switching.
+-- ]]
 
 local api = vim.api
 

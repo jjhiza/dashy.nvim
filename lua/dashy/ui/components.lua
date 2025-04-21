@@ -1,8 +1,8 @@
 ---@mod dashy.ui.components UI components for Dashy
 ---@brief [[
-Provides UI components for the Dashy dashboard.
-Includes buttons, cards, progress bars, and other visual elements.
-]]
+-- Provides UI components for the Dashy dashboard.
+-- Includes buttons, cards, progress bars, and other visual elements.
+-- ]]
 
 local api = vim.api
 

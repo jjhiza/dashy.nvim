@@ -1,7 +1,7 @@
 ---@mod dashy.utils Utility functions for Dashy
 ---@brief [[
-Provides common utility functions used across the Dashy plugin.
-]]
+-- Provides common utility functions used across the Dashy plugin.
+-- ]]
 
 local M = {}
 

@@ -1,8 +1,8 @@
 ---@mod dashy.theme.default Default theme for Dashy
 ---@brief [[
-Provides the default theme for the Dashy dashboard.
-Based on the Rose Pine Moon theme palette.
-]]
+-- Provides the default theme for the Dashy dashboard.
+-- Based on the Rose Pine Moon theme palette.
+-- ]]
 
 local M = {}
 

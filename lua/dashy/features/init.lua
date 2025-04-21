@@ -1,8 +1,8 @@
 ---@mod dashy.features Feature management for Dashy
 ---@brief [[
-Handles loading and managing features like sessions, project history,
-recent files, and custom shortcuts.
-]]
+-- Handles loading and managing features like sessions, project history,
+-- recent files, and custom shortcuts.
+-- ]]
 
 local M = {}
 

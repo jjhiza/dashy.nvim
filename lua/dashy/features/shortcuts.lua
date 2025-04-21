@@ -1,8 +1,8 @@
 ---@mod dashy.features.shortcuts Custom shortcuts management for Dashy
 ---@brief [[
-Handles custom keyboard shortcuts and actions, with support for
-icons, descriptions, and dynamic actions.
-]]
+-- Handles custom keyboard shortcuts and actions, with support for
+-- icons, descriptions, and dynamic actions.
+-- ]]
 
 local api = vim.api
 local fn = vim.fn

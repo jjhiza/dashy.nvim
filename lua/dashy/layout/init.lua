@@ -1,8 +1,8 @@
 ---@mod dashy.layout Layout management for Dashy
 ---@brief [[
-Handles window creation, positioning, and lifecycle management for the Dashy dashboard.
-Provides responsive rendering, ultrawide monitor support, and proper window cleanup.
-]]
+-- Handles window creation, positioning, and lifecycle management for the Dashy dashboard.
+-- Provides responsive rendering, ultrawide monitor support, and proper window cleanup.
+-- ]]
 
 local api = vim.api
 local uv = vim.uv

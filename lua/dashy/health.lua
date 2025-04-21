@@ -1,8 +1,8 @@
 ---@mod dashy.health Health check for Dashy
 ---@brief [[
-Provides health check functionality for Dashy, ensuring all dependencies
-and requirements are met.
-]]
+-- Provides health check functionality for Dashy, ensuring all dependencies
+-- and requirements are met.
+-- ]]
 
 local M = {}
 

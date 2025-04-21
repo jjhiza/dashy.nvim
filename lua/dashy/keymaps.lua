@@ -1,8 +1,8 @@
 ---@mod dashy.keymaps Keymap management for Dashy
 ---@brief [[
-Provides keymap configuration and management for the Dashy dashboard.
-Handles default keybindings, user-configurable mappings, and shortcut display.
-]]
+-- Provides keymap configuration and management for the Dashy dashboard.
+-- Handles default keybindings, user-configurable mappings, and shortcut display.
+-- ]]
 
 -- Module definition
 ---@class DashyKeymaps

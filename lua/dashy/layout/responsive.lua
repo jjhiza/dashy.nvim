@@ -1,8 +1,8 @@
 ---@mod dashy.layout.responsive Responsive layout handling for Dashy
 ---@brief [[
-Provides responsive layout handling for the Dashy dashboard.
-Handles dynamic resizing, ultrawide monitors, and custom layout adjustments.
-]]
+-- Provides responsive layout handling for the Dashy dashboard.
+-- Handles dynamic resizing, ultrawide monitors, and custom layout adjustments.
+-- ]]
 
 local api = vim.api
 
