@@ -1,8 +1,8 @@
 ---@mod dashy.config Configuration management for Dashy
 ---@brief [[
-Handles configuration validation, processing, and access for the Dashy plugin.
-Uses modern Neovim APIs and provides robust type checking and error handling.
-]]
+-- Handles configuration validation, processing, and access for the Dashy plugin.
+-- Uses modern Neovim APIs and provides robust type checking and error handling.
+-- ]]
 
 local api = vim.api
 local utils = require("dashy.utils")
