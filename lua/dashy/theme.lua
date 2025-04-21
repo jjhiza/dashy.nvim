@@ -65,6 +65,7 @@ end
 ---@param theme_name? string Optional theme name
 function M.apply_to_buffer(buf_id, theme_name)
   theme_name = theme_name or current_theme
+  vim.notify("Applying theme: " .. theme_name, vim.log.levels.INFO)
   
   -- Try to load theme module
   local theme_module = safe_require("dashy.theme." .. theme_name)
@@ -75,8 +76,10 @@ function M.apply_to_buffer(buf_id, theme_name)
   
   -- Get theme content and apply it
   if theme_module.get_content then
+    vim.notify("Getting content from theme module", vim.log.levels.INFO)
     local content = theme_module.get_content(buf_id, api.nvim_get_current_win())
     if content then
+      vim.notify("Content received from theme module", vim.log.levels.INFO)
       -- Combine all content
       local lines = {}
       
@@ -95,6 +98,8 @@ function M.apply_to_buffer(buf_id, theme_name)
         table.insert(lines, line)
       end
       
+      vim.notify("Setting buffer content with " .. #lines .. " lines", vim.log.levels.INFO)
+      
       -- Set buffer content
       api.nvim_buf_set_option(buf_id, "modifiable", true)
       api.nvim_buf_set_lines(buf_id, 0, -1, false, lines)
@@ -102,9 +107,14 @@ function M.apply_to_buffer(buf_id, theme_name)
       
       -- Apply theme highlights
       if theme_module.apply_highlights then
+        vim.notify("Applying highlights", vim.log.levels.INFO)
         theme_module.apply_highlights(buf_id, lines)
       end
+    else
+      vim.notify("No content received from theme module", vim.log.levels.ERROR)
     end
+  else
+    vim.notify("Theme module does not have get_content function", vim.log.levels.ERROR)
   end
   
   -- Set buffer-specific highlights

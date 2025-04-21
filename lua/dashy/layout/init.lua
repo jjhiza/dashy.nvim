@@ -157,6 +157,8 @@ end
 -- Create the dashboard window
 ---@return number? win_id The created window ID or nil if creation failed
 local function create_window()
+  vim.notify("Creating dashboard window", vim.log.levels.INFO)
+  
   -- Save current window and buffer
   state.prev_win_id = api.nvim_get_current_win()
   state.prev_buf_id = api.nvim_win_get_buf(state.prev_win_id)
@@ -170,6 +172,7 @@ local function create_window()
     vim.notify("Failed to create dashboard buffer", vim.log.levels.ERROR)
     return nil
   end
+  vim.notify("Created buffer: " .. buf_id, vim.log.levels.INFO)
   
   -- Set buffer options
   setup_buffer_options(buf_id)
@@ -184,6 +187,7 @@ local function create_window()
   
   -- Store dimensions
   state.dimensions = dimensions
+  vim.notify(string.format("Window dimensions: %dx%d", dimensions.width, dimensions.height), vim.log.levels.INFO)
   
   -- Create the window as a full-screen buffer
   local win_id = api.nvim_open_win(buf_id, true, {
@@ -201,6 +205,7 @@ local function create_window()
     api.nvim_buf_delete(buf_id, { force = true })
     return nil
   end
+  vim.notify("Created window: " .. win_id, vim.log.levels.INFO)
   
   -- Set window options
   setup_window_options(win_id)
@@ -216,8 +221,11 @@ end
 -- Populate content in the buffer
 ---@param buf_id number Buffer ID
 local function populate_content(buf_id)
+  vim.notify("Populating content for buffer: " .. buf_id, vim.log.levels.INFO)
+  
   -- Check if buffer is valid
   if not api.nvim_buf_is_valid(buf_id) then
+    vim.notify("Invalid buffer ID", vim.log.levels.ERROR)
     return
   end
   
