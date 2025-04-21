@@ -127,7 +127,7 @@ local actions = {
   -- Execute the currently selected action
   execute_selection = function()
     local current_line = vim.api.nvim_get_current_line()
-    local menu_items = require("dashy.theme.modern").get_menu_items()
+    local menu_items = require("dashy.theme.default").get_menu_items()
     
     for _, item in ipairs(menu_items) do
       if current_line:match(item.desc) then
