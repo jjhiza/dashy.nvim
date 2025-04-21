@@ -60,6 +60,19 @@ function M.get_colors()
 	return colors
 end
 
+-- Get menu items
+---@return table
+function M.get_menu_items()
+	return {
+		{ desc = "Find File", action = "Telescope find_files" },
+		{ desc = "Live Grep", action = "Telescope live_grep" },
+		{ desc = "Recent Files", action = "Telescope oldfiles" },
+		{ desc = "Config", action = "edit ~/.config/nvim/init.lua" },
+		{ desc = "Lazy", action = "Lazy" },
+		{ desc = "Quit", action = "bdelete" },
+	}
+end
+
 -- Get theme content
 ---@param bufnr number Buffer ID
 ---@param winid number Window ID
