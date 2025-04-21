@@ -81,14 +81,14 @@ function M.get_content(bufnr, winid)
 		},
 		center = {
 			"",
-			"  󰮗 Find File",
-			"  󰬵 Live Grep",
-			"  󰷏 Recent Files",
-			-- "  [󰚰] Projects", uncomment if using project.nvim, and want to add this menu
-			-- entry
-			"  󰖟 Config",
-			"  󰒲 Lazy",
-			"  󰈆 Quit",
+			"  [󰮗] Find File",
+			"  [󰬵] Live Grep",
+			"  [󰷏] Recent Files",
+      -- "  [󰚰] Projects", uncomment if using project.nvim, and want to add this menu
+      -- entry
+			"  [󰖟] Config",
+			"  [󰒲] Lazy",
+			"  [󰈆] Quit",
 			"",
 		},
 		footer = {

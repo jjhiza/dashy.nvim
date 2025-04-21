@@ -269,14 +269,12 @@ function M.setup_dashboard_keymaps(bufnr)
     desc = "Execute selection",
   })
 
-  -- Set up 'q' to quit
-  vim.keymap.set("n", "q", function()
-    vim.cmd("qa")
-  end, {
+  -- Set up 'q' to close the buffer
+  vim.keymap.set("n", "q", "<cmd>bdelete<CR>", {
     buffer = bufnr,
     silent = true,
     noremap = true,
-    desc = "Quit Dashy",
+    desc = "Close Dashy",
   })
   
   -- Position cursor on the 'F' in "Find File"
