@@ -706,6 +706,64 @@ function M.add_shortcuts_to_content(content)
   return content
 end
 
+-- Setup dashboard keymaps
+---@param buf_id number Buffer ID
+function M.setup_dashboard_keymaps(buf_id)
+  -- Clear any existing mappings for this buffer
+  if active_mappings[buf_id] then
+    for _, mapping in ipairs(active_mappings[buf_id]) do
+      api.nvim_buf_clear_keymap(buf_id, "n", mapping)
+    end
+    active_mappings[buf_id] = {}
+  else
+    active_mappings[buf_id] = {}
+  end
+
+  -- Get configuration
+  local config = safe_require("dashy.config")
+  if not config then
+    return
+  end
+
+  -- Get keymap type from config
+  local shortcut_type = config.get("shortcut_type") or "letter"
+  local keymaps_to_use = shortcut_type == "number" and number_keymaps or default_keymaps
+
+  -- Set up keymaps
+  for _, mapping in ipairs(keymaps_to_use) do
+    local opts = {
+      buffer = buf_id,
+      silent = true,
+      nowait = true,
+      desc = mapping.desc,
+    }
+
+    -- Add the keymap
+    keymap.set("n", mapping.key, function()
+      local action = actions[mapping.action]
+      if action then
+        action()
+      end
+    end, opts)
+
+    -- Store the mapping for cleanup
+    table.insert(active_mappings[buf_id], mapping.key)
+  end
+end
+
+-- Setup dashboard window keymaps
+---@param win_id number Window ID
+function M.setup_dashboard_win_keymaps(win_id)
+  -- Set window-local keymaps
+  api.nvim_win_set_option(win_id, "number", false)
+  api.nvim_win_set_option(win_id, "relativenumber", false)
+  api.nvim_win_set_option(win_id, "cursorline", false)
+  api.nvim_win_set_option(win_id, "cursorcolumn", false)
+  api.nvim_win_set_option(win_id, "foldcolumn", "0")
+  api.nvim_win_set_option(win_id, "signcolumn", "no")
+  api.nvim_win_set_option(win_id, "colorcolumn", "")
+end
+
 -- Return the module
 return M
 
