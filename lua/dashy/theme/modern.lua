@@ -304,11 +304,30 @@ function M.get_content(bufnr, winid)
     footer = generate_footer(),
   }
   
-  -- Format menu items
+  -- Add spacing between sections
+  table.insert(content.center, "")
+  table.insert(content.center, "")
+  
+  -- Format menu items with better spacing for full-screen
   local menu_items = cfg.sections.center and cfg.sections.center.menu or default_menu_items
+  
+  -- Calculate optimal spacing for full-screen layout
+  local menu_width = 0
   for _, item in ipairs(menu_items) do
-    table.insert(content.center, format_menu_item(item, width))
+    local item_width = vim.fn.strdisplaywidth(format_menu_item(item, width))
+    if item_width > menu_width then
+      menu_width = item_width
+    end
   end
+  
+  -- Add menu items with proper spacing
+  for _, item in ipairs(menu_items) do
+    table.insert(content.center, format_menu_item(item, menu_width))
+  end
+  
+  -- Add more spacing at the bottom
+  table.insert(content.center, "")
+  table.insert(content.center, "")
   
   -- Schedule ExtMarks application for after buffer rendering
   vim.schedule(function()

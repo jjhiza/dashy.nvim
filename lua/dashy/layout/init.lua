@@ -105,11 +105,12 @@ end
 local function setup_buffer_options(buf_id)
   api.nvim_buf_set_option(buf_id, "buftype", "nofile")
   api.nvim_buf_set_option(buf_id, "bufhidden", "wipe")
-  api.nvim_buf_set_option(buf_id, "buflisted", false)
+  api.nvim_buf_set_option(buf_id, "buflisted", true) -- Make it listed so it's interactive
   api.nvim_buf_set_option(buf_id, "swapfile", false)
   api.nvim_buf_set_option(buf_id, "modifiable", false)
   api.nvim_buf_set_option(buf_id, "filetype", "dashboard")
   api.nvim_buf_set_option(buf_id, "modified", false)
+  api.nvim_buf_set_option(buf_id, "readonly", false) -- Make it editable for interaction
   
   -- Set buffer keymaps
   local keymaps = safe_require("dashy.keymaps")
@@ -121,13 +122,7 @@ end
 -- Set window options for the dashboard
 ---@param win_id number Window ID
 local function setup_window_options(win_id)
-  -- Apply responsive layout optimizations
-  local responsive = safe_require("dashy.layout.responsive")
-  if responsive then
-    responsive.optimize_layout(state.buf_id, win_id)
-  end
-  
-  -- Set window options
+  -- Set window options for full-screen mode
   api.nvim_win_set_option(win_id, "wrap", false)
   api.nvim_win_set_option(win_id, "linebreak", false)
   api.nvim_win_set_option(win_id, "breakindent", false)
@@ -147,7 +142,7 @@ local function setup_window_options(win_id)
   api.nvim_win_set_option(win_id, "conceallevel", 0)
   api.nvim_win_set_option(win_id, "concealcursor", "")
   api.nvim_win_set_option(win_id, "colorcolumn", "")
-  api.nvim_win_set_option(win_id, "winhl", "Normal:DashboardNormal,FloatBorder:DashboardBorder")
+  api.nvim_win_set_option(win_id, "winhl", "Normal:DashboardNormal,EndOfBuffer:DashboardEndOfBuffer")
   
   -- Set window-local highlights
   api.nvim_win_set_option(win_id, "winblend", 0)
@@ -179,36 +174,28 @@ local function create_window()
   -- Set buffer options
   setup_buffer_options(buf_id)
   
-  -- Calculate dimensions using responsive layout
-  local responsive = safe_require("dashy.layout.responsive")
-  local dimensions
-  if responsive then
-    dimensions = responsive.calculate_dimensions(buf_id, state.prev_win_id)
-  else
-    -- Fallback to default dimensions
-    dimensions = {
-      width = math.floor(api.nvim_win_get_width(0) * 0.7),
-      height = math.floor(api.nvim_win_get_height(0) * 0.75),
-      row = math.floor((api.nvim_win_get_height(0) - math.floor(api.nvim_win_get_height(0) * 0.75)) / 2),
-      col = math.floor((api.nvim_win_get_width(0) - math.floor(api.nvim_win_get_width(0) * 0.7)) / 2),
-    }
-  end
+  -- For full-screen mode, we use the entire editor area
+  local dimensions = {
+    width = api.nvim_win_get_width(0),
+    height = api.nvim_win_get_height(0),
+    row = 0,
+    col = 0,
+  }
   
   -- Store dimensions
   state.dimensions = dimensions
   
-  -- Create the window
-  local win_opts = {
+  -- Create the window as a full-screen buffer
+  local win_id = api.nvim_open_win(buf_id, true, {
     relative = "editor",
     width = dimensions.width,
     height = dimensions.height,
     row = dimensions.row,
     col = dimensions.col,
     style = "minimal",
-    border = "rounded",
-  }
+    border = "none",
+  })
   
-  local win_id = api.nvim_open_win(buf_id, false, win_opts)
   if not win_id then
     vim.notify("Failed to create dashboard window", vim.log.levels.ERROR)
     api.nvim_buf_delete(buf_id, { force = true })
@@ -222,17 +209,6 @@ local function create_window()
   state.win_id = win_id
   state.buf_id = buf_id
   state.is_visible = true
-  
-  -- Set up resize handler
-  local augroup = api.nvim_create_augroup("DashyResize", { clear = true })
-  api.nvim_create_autocmd("VimResized", {
-    group = augroup,
-    callback = function()
-      if responsive then
-        responsive.handle_resize(buf_id, win_id)
-      end
-    end,
-  })
   
   return win_id
 end
