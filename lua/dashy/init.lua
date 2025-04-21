@@ -47,7 +47,7 @@ end
 -- Default configuration options
 ---@type DashySetupOptions
 Dashy._DEFAULT_CONFIG = {
-  theme = "hyper",
+  theme = "rose-pine-moon",
   hide = {
     statusline = true,
     tabline = true,
