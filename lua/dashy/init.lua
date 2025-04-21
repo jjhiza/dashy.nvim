@@ -211,3 +211,29 @@ end
 -- Return the Dashy module
 return Dashy
 
+-- Register commands
+vim.api.nvim_create_user_command("Dashy", function(opts)
+  if not Dashy.initialized then
+    vim.notify("Please call Dashy.setup() before using the command", vim.log.levels.ERROR)
+    return
+  end
+  
+  if opts.args == "open" or opts.args == "" then
+    Dashy.open()
+  elseif opts.args == "close" then
+    Dashy.close()
+  else
+    vim.notify("Invalid Dashy command. Use :Dashy open or :Dashy close", vim.log.levels.ERROR)
+  end
+end, {
+  nargs = "?",
+  complete = function(_, line)
+    local l = vim.split(line, "%s+")
+    if #l == 1 then
+      return {"open", "close"}
+    end
+    return {}
+  end,
+  desc = "Open or close the Dashy dashboard"
+})
+
