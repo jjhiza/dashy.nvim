@@ -23,6 +23,12 @@ local colors = {
   info = "#3e8fb0",    -- Info color (blue)
 }
 
+-- Get theme colors
+---@return table
+function M.get_colors()
+  return colors
+end
+
 -- Get theme content for the dashboard
 ---@param buf_id number Buffer ID
 ---@param win_id number Window ID
@@ -93,7 +99,7 @@ function M.apply_highlights(buf_id, highlights)
   }
 
   -- Apply highlights
-  local ns_id = api.nvim_get_namespace("dashy")
+  local ns_id = api.nvim_get_namespace("dashy_theme")
   for _, hl in ipairs(highlight_groups) do
     api.nvim_buf_add_highlight(buf_id, ns_id, hl.group, hl.line - 1, hl.col_start - 1, hl.col_end - 1)
   end

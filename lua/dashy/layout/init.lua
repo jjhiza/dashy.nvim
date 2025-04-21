@@ -49,6 +49,9 @@ local content = {
 -- Get the safe require utility from the main module
 local safe_require = require("dashy").safe_require
 
+-- Get theme manager
+local theme_manager = require("dashy.theme")
+
 -- Check if dashboard is visible
 ---@return boolean is_visible Whether the dashboard is currently visible
 function M.is_visible()
@@ -234,55 +237,16 @@ local function create_window()
   return win_id
 end
 
--- Populate the dashboard content
+-- Populate content in the buffer
 ---@param buf_id number Buffer ID
 local function populate_content(buf_id)
-  -- Get the theme content
-  local config = safe_require("dashy.config")
-  if not config then
+  -- Check if buffer is valid
+  if not api.nvim_buf_is_valid(buf_id) then
     return
   end
   
-  local theme_name = config.get("theme")
-  local theme = safe_require("dashy.theme." .. theme_name)
-  if not theme or not theme.get_content then
-    return
-  end
-  
-  -- Get content from theme with proper parameters
-  content = theme.get_content(buf_id, state.win_id)
-  if not content then
-    return
-  end
-  
-  -- Combine all content
-  local lines = {}
-  local highlights = {}
-  
-  -- Add header
-  for i, line in ipairs(content.header) do
-    table.insert(lines, line)
-  end
-  
-  -- Add center content
-  for i, line in ipairs(content.center) do
-    table.insert(lines, line)
-  end
-  
-  -- Add footer
-  for i, line in ipairs(content.footer) do
-    table.insert(lines, line)
-  end
-  
-  -- Set buffer content
-  api.nvim_buf_set_option(buf_id, "modifiable", true)
-  api.nvim_buf_set_lines(buf_id, 0, -1, false, lines)
-  api.nvim_buf_set_option(buf_id, "modifiable", false)
-  
-  -- Apply highlights
-  if theme.apply_highlights then
-    theme.apply_highlights(buf_id, highlights)
-  end
+  -- Apply theme to buffer
+  theme_manager.apply_to_buffer(buf_id)
 end
 
 -- Create the dashboard

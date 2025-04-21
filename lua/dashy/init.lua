@@ -122,6 +122,13 @@ function Dashy.setup(opts)
     features.init(Dashy.config)
   end
 
+  -- Register commands
+  vim.api.nvim_create_user_command("Dashy", function()
+    Dashy.open()
+  end, {
+    desc = "Open Dashy dashboard",
+  })
+
   -- Define autocmd group for Dashy
   local augroup = vim.api.nvim_create_augroup("Dashy", { clear = true })
 
