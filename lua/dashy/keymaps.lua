@@ -292,17 +292,17 @@ function M.setup_dashboard_keymaps(bufnr)
   end)
 end
 
--- Setup dashboard window keymaps
+-- Setup window-specific keymaps
 ---@param win_id number Window ID
 function M.setup_dashboard_win_keymaps(win_id)
-  -- Set window-local keymaps
-  api.nvim_win_set_option(win_id, "number", false)
-  api.nvim_win_set_option(win_id, "relativenumber", false)
-  api.nvim_win_set_option(win_id, "cursorline", false)
-  api.nvim_win_set_option(win_id, "cursorcolumn", false)
-  api.nvim_win_set_option(win_id, "foldcolumn", "0")
-  api.nvim_win_set_option(win_id, "signcolumn", "no")
-  api.nvim_win_set_option(win_id, "colorcolumn", "")
+  -- Set window-local options
+  vim.api.nvim_win_set_option(win_id, "number", false)
+  vim.api.nvim_win_set_option(win_id, "relativenumber", false)
+  vim.api.nvim_win_set_option(win_id, "cursorline", false)
+  vim.api.nvim_win_set_option(win_id, "cursorcolumn", false)
+  vim.api.nvim_win_set_option(win_id, "foldcolumn", "0")
+  vim.api.nvim_win_set_option(win_id, "signcolumn", "no")
+  vim.api.nvim_win_set_option(win_id, "colorcolumn", "")
 end
 
 -- Execute a keymap action
