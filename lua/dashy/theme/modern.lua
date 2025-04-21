@@ -104,6 +104,25 @@ local default_menu_items = {
   },
 }
 
+-- Theme colors based on modern palette
+local colors = {
+  bg = "#1a1b26",      -- Base background
+  fg = "#a9b1d6",      -- Base foreground
+  muted = "#565f89",   -- Muted text
+  subtle = "#24283b",  -- Subtle borders
+  accent = "#7aa2f7",  -- Accent color (blue)
+  success = "#9ece6a", -- Success color (green)
+  warning = "#e0af68", -- Warning color (yellow)
+  error = "#f7768e",   -- Error color (red)
+  info = "#7dcfff",    -- Info color (cyan)
+}
+
+-- Get theme colors
+---@return table
+function M.get_colors()
+  return colors
+end
+
 -- Helper function to detect icon support
 ---@return boolean has_icons Whether the devicons plugin is available
 local function has_icon_support()
@@ -309,6 +328,33 @@ function M.get_content(bufnr, winid)
   return content
 end
 
+-- Apply highlights to the dashboard
+---@param buf_id number Buffer ID
+---@param highlights table The highlights to apply
+function M.apply_highlights(buf_id, highlights)
+  -- Define highlight groups
+  local highlight_groups = {
+    -- Header
+    { group = "DashyHeader", line = 1, col_start = 1, col_end = 80 },
+    { group = "DashyHeader", line = 2, col_start = 1, col_end = 80 },
+    { group = "DashyHeader", line = 3, col_start = 1, col_end = 80 },
+    { group = "DashyHeader", line = 4, col_start = 1, col_end = 80 },
+    { group = "DashyHeader", line = 5, col_start = 1, col_end = 80 },
+    { group = "DashyHeader", line = 6, col_start = 1, col_end = 80 },
+    
+    -- Footer
+    { group = "DashyFooter", line = #highlights - 3, col_start = 1, col_end = 20 },
+    { group = "DashyFooter", line = #highlights - 2, col_start = 1, col_end = 20 },
+    { group = "DashyFooter", line = #highlights - 1, col_start = 1, col_end = 20 },
+  }
+
+  -- Apply highlights
+  local ns_id = api.nvim_get_namespace("dashy_theme")
+  for _, hl in ipairs(highlight_groups) do
+    api.nvim_buf_add_highlight(buf_id, ns_id, hl.group, hl.line - 1, hl.col_start - 1, hl.col_end - 1)
+  end
+end
+
 -- Adjust the theme for different layout types
 ---@param bufnr number Buffer ID
 ---@param winid number Window ID
@@ -329,5 +375,18 @@ function M.adjust_for_layout(bufnr, winid, layout_type, dimensions)
         -- Reapply header gradient
         apply_header_gradient(bufnr, header, header_start)
         
-        -- Refresh menu ext
+        -- Refresh menu extmarks
+        local config = safe_require("dashy.config")
+        if config then
+          local cfg = config.get()
+          local menu_items = cfg.sections.center and cfg.sections.center.menu or default_menu_items
+          local center_start = header_start + #header + 1
+          apply_menu_extmarks(bufnr, menu_items, center_start)
+        end
+      end
+    end)
+  end
+end
+
+return M
 
