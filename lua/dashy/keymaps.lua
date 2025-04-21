@@ -57,68 +57,155 @@ local active_mappings = {}
 ---@field callback function|nil Custom callback function for the action
 ---@field opts table|nil Additional options for the keymap
 
--- Default keymaps with descriptive labels
----@type DashyKeymapDefinition[]
+-- Action handlers
+local actions = {
+  -- Open a new file
+  new_file = function()
+    vim.cmd("enew")
+  end,
+
+  -- Find files using Telescope
+  find_files = function()
+    if vim.fn.exists(":Telescope") == 2 then
+      vim.cmd("Telescope find_files")
+    else
+      vim.notify("Telescope is not installed", vim.log.levels.WARN)
+    end
+  end,
+
+  -- Find recent files using Telescope
+  recent_files = function()
+    if vim.fn.exists(":Telescope") == 2 then
+      vim.cmd("Telescope oldfiles")
+    else
+      vim.notify("Telescope is not installed", vim.log.levels.WARN)
+    end
+  end,
+
+  -- Find projects using project.nvim
+  find_projects = function()
+    if vim.fn.exists(":Telescope") == 2 and vim.fn.exists(":ProjectRoot") == 2 then
+      vim.cmd("Telescope project")
+    else
+      vim.notify("Telescope and project.nvim are required", vim.log.levels.WARN)
+    end
+  end,
+
+  -- Load session using persistence.nvim
+  load_session = function()
+    if vim.fn.exists(":SessionLoad") == 2 then
+      vim.cmd("SessionLoad")
+    else
+      vim.notify("persistence.nvim is not installed", vim.log.levels.WARN)
+    end
+  end,
+
+  -- Update plugins using lazy.nvim
+  update_plugins = function()
+    if vim.fn.exists(":Lazy") == 2 then
+      vim.cmd("Lazy update")
+    else
+      vim.notify("lazy.nvim is not installed", vim.log.levels.WARN)
+    end
+  end,
+
+  -- Open help documentation
+  help = function()
+    vim.cmd("help dashy")
+  end,
+
+  -- Run health check
+  health = function()
+    vim.cmd("checkhealth")
+  end,
+
+  -- Quit dashboard
+  quit = function()
+    vim.cmd("q")
+  end,
+
+  -- Execute the currently selected action
+  execute_selection = function()
+    local line = vim.api.nvim_get_current_line()
+    local key = line:match("^%s*([%w?])%s*-")
+    if key then
+      -- Find the keymap for this key
+      local keymaps = merge_keymaps()
+      for _, keymap in ipairs(keymaps) do
+        if keymap.key == key then
+          execute_action(keymap.action)
+          return
+        end
+      end
+    end
+  end,
+}
+
+-- Default keymaps with all menu options
 local default_keymaps = {
   {
-    key = "q",
-    action = "quit",
-    desc = "Close dashboard",
-    label = "q",
+    key = "<CR>",
+    action = "execute_selection",
+    desc = "Execute selection",
+    label = "<CR>",
   },
   {
-    key = "e",
+    key = "n",
     action = "new_file",
     desc = "New file",
-    label = "e",
+    label = "n - New file",
   },
   {
     key = "f",
     action = "find_files",
     desc = "Find files",
-    label = "f",
+    label = "f - Find files",
   },
   {
     key = "r",
-    action = "find_recent",
+    action = "recent_files",
     desc = "Recent files",
-    label = "r",
-  },
-  {
-    key = "p",
-    action = "find_projects",
-    desc = "Projects",
-    label = "p",
+    label = "r - Recent files",
   },
   {
     key = "s",
     action = "load_session",
-    desc = "Sessions",
-    label = "s",
+    desc = "Load session",
+    label = "s - Load session",
   },
   {
     key = "u",
     action = "update_plugins",
     desc = "Update plugins",
-    label = "u",
-  },
-  {
-    key = "?",
-    action = "help",
-    desc = "Help",
-    label = "?",
+    label = "u - Update plugins",
   },
   {
     key = "h",
-    action = "check_health",
-    desc = "Health check",
-    label = "h",
+    action = "help",
+    desc = "Help",
+    label = "h - Help",
   },
   {
-    key = "<Esc>",
+    key = "c",
+    action = "health",
+    desc = "Health check",
+    label = "c - Health check",
+  },
+  {
+    key = "q",
     action = "quit",
-    desc = "Close dashboard",
-    label = nil, -- Hidden from shortcut display
+    desc = "Quit",
+    label = "q - Quit",
+  },
+}
+
+-- Optional keymaps that can be enabled via config
+local optional_keymaps = {
+  {
+    key = "p",
+    action = "find_projects",
+    desc = "Find projects",
+    label = "p - Find projects",
   },
 }
 
@@ -142,12 +229,6 @@ local number_keymaps = {
     action = "find_recent",
     desc = "Recent files",
     label = "3",
-  },
-  {
-    key = "4",
-    action = "find_projects",
-    desc = "Projects",
-    label = "4",
   },
   {
     key = "5",
@@ -187,152 +268,15 @@ local number_keymaps = {
   },
 }
 
--- Action handler functions
-local actions = {
-  -- Close the dashboard
-  quit = function()
-    local layout = safe_require("dashy.layout")
-    if layout then
-      layout.destroy()
-    end
-  end,
-
-  -- Open a new file
-  new_file = function()
-    local layout = safe_require("dashy.layout")
-    if layout then
-      layout.destroy()
-      vim.cmd("enew")
-    end
-  end,
-
-  -- Find files using Telescope if available, otherwise use builtin finder
-  find_files = function()
-    local has_telescope, telescope = pcall(require, "telescope.builtin")
-    if has_telescope then
-      local layout = safe_require("dashy.layout")
-      if layout then
-        layout.destroy()
-      end
-      telescope.find_files()
-    else
-      vim.cmd("edit .")
-    end
-  end,
-
-  -- Find recent files using Telescope if available
-  find_recent = function()
-    local has_telescope, telescope = pcall(require, "telescope.builtin")
-    if has_telescope then
-      local layout = safe_require("dashy.layout")
-      if layout then
-        layout.destroy()
-      end
-      telescope.oldfiles()
-    else
-      vim.cmd("browse oldfiles")
-    end
-  end,
-
-  -- Find projects using project.nvim if available
-  find_projects = function()
-    local has_project = pcall(require, "project_nvim")
-    if has_project and pcall(require, "telescope") then
-      local layout = safe_require("dashy.layout")
-      if layout then
-        layout.destroy()
-      end
-      require("telescope").extensions.projects.projects({})
-    else
-      vim.notify(
-        "project.nvim or telescope not found. Please install them for project management.",
-        vim.log.levels.WARN
-      )
-    end
-  end,
-
-  -- Load session using auto-session or persisted.nvim if available
-  load_session = function()
-    local layout = safe_require("dashy.layout")
-    if layout then
-      layout.destroy()
-    end
-
-    local has_auto_session = pcall(require, "auto-session")
-    local has_persisted = pcall(require, "persisted")
-    local has_telescope = pcall(require, "telescope")
-
-    if has_auto_session and has_telescope then
-      require("auto-session.session-lens").search_session()
-    elseif has_persisted and has_telescope then
-      require("telescope").extensions.persisted.persisted({})
-    else
-      vim.notify(
-        "No session management plugin found. Please install auto-session or persisted.nvim.",
-        vim.log.levels.WARN
-      )
-    end
-  end,
-
-  -- Update plugins using the plugin manager if available
-  update_plugins = function()
-    local layout = safe_require("dashy.layout")
-    if layout then
-      layout.destroy()
-    end
-
-    -- Try different plugin managers
-    if vim.fn.exists(":Lazy") == 2 then
-      vim.cmd("Lazy update")
-    elseif vim.fn.exists(":PackerUpdate") == 2 then
-      vim.cmd("PackerUpdate")
-    else
-      vim.notify("No supported plugin manager found.", vim.log.levels.WARN)
-    end
-  end,
-
-  -- Open help documentation
-  help = function()
-    local layout = safe_require("dashy.layout")
-    if layout then
-      layout.destroy()
-    end
-    vim.cmd("help dashy.nvim")
-  end,
-
-  -- Run health check
-  check_health = function()
-    local layout = safe_require("dashy.layout")
-    if layout then
-      layout.destroy()
-    end
-    vim.cmd("checkhealth dashy")
-  end,
-
-  -- Custom action (handled by user callback)
-  custom = function(callback)
-    if type(callback) == "function" then
-      callback()
-    else
-      vim.notify("No callback provided for custom action", vim.log.levels.ERROR)
-    end
-  end,
+-- Optional number-based keymaps
+local optional_number_keymaps = {
+  {
+    key = "4",
+    action = "find_projects",
+    desc = "Projects",
+    label = "4",
+  },
 }
-
--- Execute a keymap action
----@param action DashyKeymapAction The action to execute
----@param callback function|nil Custom callback for custom actions
-local function execute_action(action, callback)
-  if actions[action] then
-    if action == "custom" then
-      actions[action](callback)
-    else
-      actions[action]()
-    end
-  else
-    vim.notify("Unknown action: " .. action, vim.log.levels.ERROR)
-  end
-end
 
 -- Create a keymap for a specific buffer
 ---@param buf_id number Buffer ID to map keys in
@@ -366,11 +310,20 @@ local function get_keymap_definitions()
 
   -- Check shortcut type configuration
   local shortcut_type = config.get("shortcut_type") or "letter"
-  if shortcut_type == "number" then
-    return number_keymaps
-  else
-    return default_keymaps
+  local keymaps = shortcut_type == "number" and number_keymaps or default_keymaps
+  
+  -- Check if projects feature is enabled
+  local features = config.get("features") or {}
+  local project_history = features.project_history or {}
+  if project_history.enabled then
+    -- Add optional keymaps if the feature is enabled
+    local optional = shortcut_type == "number" and optional_number_keymaps or optional_keymaps
+    for _, keymap in ipairs(optional) do
+      table.insert(keymaps, keymap)
+    end
   end
+  
+  return keymaps
 end
 
 -- Get user-defined keymaps from configuration
@@ -444,6 +397,17 @@ function M.setup(buf_id)
       keymap_def.opts
     )
   end
+
+  -- Position cursor on first selectable item
+  vim.schedule(function()
+    local lines = vim.api.nvim_buf_get_lines(buf_id, 0, -1, false)
+    for i, line in ipairs(lines) do
+      if line:match("^%s*[%w?]%s*-") then
+        vim.api.nvim_win_set_cursor(0, {i, 0})
+        break
+      end
+    end
+  end)
 
   return true
 end
@@ -749,6 +713,17 @@ function M.setup_dashboard_keymaps(buf_id)
     -- Store the mapping for cleanup
     table.insert(active_mappings[buf_id], mapping.key)
   end
+
+  -- Position cursor on first selectable item
+  vim.schedule(function()
+    local lines = vim.api.nvim_buf_get_lines(buf_id, 0, -1, false)
+    for i, line in ipairs(lines) do
+      if line:match("^%s*[%w?]%s*-") then
+        vim.api.nvim_win_set_cursor(0, {i, 0})
+        break
+      end
+    end
+  end)
 end
 
 -- Setup dashboard window keymaps
@@ -762,6 +737,21 @@ function M.setup_dashboard_win_keymaps(win_id)
   api.nvim_win_set_option(win_id, "foldcolumn", "0")
   api.nvim_win_set_option(win_id, "signcolumn", "no")
   api.nvim_win_set_option(win_id, "colorcolumn", "")
+end
+
+-- Execute a keymap action
+---@param action DashyKeymapAction The action to execute
+---@param callback function|nil Custom callback for custom actions
+local function execute_action(action, callback)
+  if actions[action] then
+    if action == "custom" then
+      actions[action](callback)
+    else
+      actions[action]()
+    end
+  else
+    vim.notify("Unknown action: " .. action, vim.log.levels.ERROR)
+  end
 end
 
 -- Return the module

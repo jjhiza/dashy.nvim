@@ -69,7 +69,7 @@ Dashy._DEFAULT_CONFIG = {
       display_type = "list",
     },
     project_history = {
-      enabled = true,
+      enabled = false,
       max_entries = 10,
       track_git_branches = true,
       save_project_stats = true,
