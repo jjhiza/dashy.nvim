@@ -208,9 +208,6 @@ function Dashy.close()
   return true
 end
 
--- Return the Dashy module
-return Dashy
-
 -- Register commands
 vim.api.nvim_create_user_command("Dashy", function(opts)
   if not Dashy.initialized then
@@ -236,4 +233,7 @@ end, {
   end,
   desc = "Open or close the Dashy dashboard"
 })
+
+-- Return the Dashy module
+return Dashy
 
