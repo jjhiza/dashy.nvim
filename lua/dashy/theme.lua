@@ -118,7 +118,7 @@ function M.apply_to_buffer(buf_id, theme_name)
   end
   
   -- Set buffer-specific highlights
-  local ns_id = api.nvim_get_namespace("dashy_theme")
+  local ns_id = vim.api.nvim_get_namespace("dashy_theme")
   api.nvim_buf_clear_namespace(buf_id, ns_id, 0, -1)
   
   -- Apply background color
