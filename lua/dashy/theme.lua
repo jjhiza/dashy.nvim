@@ -73,14 +73,38 @@ function M.apply_to_buffer(buf_id, theme_name)
   end
   
   -- Get theme content and apply it
+  local content = nil
   if theme_module.get_content then
-    local content = theme_module.get_content()
-    api.nvim_buf_set_lines(buf_id, 0, -1, false, content)
-  end
-  
-  -- Apply theme highlights
-  if theme_module.apply_highlights then
-    theme_module.apply_highlights(buf_id, content)
+    content = theme_module.get_content(buf_id, api.nvim_get_current_win())
+    if content then
+      -- Combine all content
+      local lines = {}
+      
+      -- Add header
+      for _, line in ipairs(content.header) do
+        table.insert(lines, line)
+      end
+      
+      -- Add center content
+      for _, line in ipairs(content.center) do
+        table.insert(lines, line)
+      end
+      
+      -- Add footer
+      for _, line in ipairs(content.footer) do
+        table.insert(lines, line)
+      end
+      
+      -- Set buffer content
+      api.nvim_buf_set_option(buf_id, "modifiable", true)
+      api.nvim_buf_set_lines(buf_id, 0, -1, false, lines)
+      api.nvim_buf_set_option(buf_id, "modifiable", false)
+      
+      -- Apply theme highlights
+      if theme_module.apply_highlights then
+        theme_module.apply_highlights(buf_id, lines)
+      end
+    end
   end
   
   -- Set buffer-specific highlights

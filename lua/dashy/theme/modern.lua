@@ -354,17 +354,17 @@ function M.apply_highlights(buf_id, highlights)
   -- Define highlight groups
   local highlight_groups = {
     -- Header
-    { group = "DashyHeader", line = 1, col_start = 1, col_end = 80 },
-    { group = "DashyHeader", line = 2, col_start = 1, col_end = 80 },
-    { group = "DashyHeader", line = 3, col_start = 1, col_end = 80 },
-    { group = "DashyHeader", line = 4, col_start = 1, col_end = 80 },
-    { group = "DashyHeader", line = 5, col_start = 1, col_end = 80 },
-    { group = "DashyHeader", line = 6, col_start = 1, col_end = 80 },
+    { group = "DashboardHeader", line = 1, col_start = 1, col_end = 80 },
+    { group = "DashboardHeader", line = 2, col_start = 1, col_end = 80 },
+    { group = "DashboardHeader", line = 3, col_start = 1, col_end = 80 },
+    { group = "DashboardHeader", line = 4, col_start = 1, col_end = 80 },
+    { group = "DashboardHeader", line = 5, col_start = 1, col_end = 80 },
+    { group = "DashboardHeader", line = 6, col_start = 1, col_end = 80 },
     
     -- Footer
-    { group = "DashyFooter", line = #highlights - 3, col_start = 1, col_end = 20 },
-    { group = "DashyFooter", line = #highlights - 2, col_start = 1, col_end = 20 },
-    { group = "DashyFooter", line = #highlights - 1, col_start = 1, col_end = 20 },
+    { group = "DashboardFooter", line = #highlights - 3, col_start = 1, col_end = 20 },
+    { group = "DashboardFooter", line = #highlights - 2, col_start = 1, col_end = 20 },
+    { group = "DashboardFooter", line = #highlights - 1, col_start = 1, col_end = 20 },
   }
 
   -- Apply highlights
