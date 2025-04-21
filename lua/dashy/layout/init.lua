@@ -155,7 +155,7 @@ local function setup_window_options(win_id)
   if keymaps then
     keymaps.setup_dashboard_win_keymaps(win_id)
   end
-}
+end
 
 -- Create the dashboard window
 ---@return number? win_id The created window ID or nil if creation failed
