@@ -69,13 +69,13 @@ function M.apply_to_buffer(buf_id, theme_name)
   -- Try to load theme module
   local theme_module = safe_require("dashy.theme." .. theme_name)
   if not theme_module then
+    vim.notify("Failed to load theme module: " .. theme_name, vim.log.levels.ERROR)
     return
   end
   
   -- Get theme content and apply it
-  local content = nil
   if theme_module.get_content then
-    content = theme_module.get_content(buf_id, api.nvim_get_current_win())
+    local content = theme_module.get_content(buf_id, api.nvim_get_current_win())
     if content then
       -- Combine all content
       local lines = {}
@@ -126,6 +126,7 @@ end
 function M.setup(config)
   -- Set initial theme
   if config.theme then
+    current_theme = config.theme
     M.set_current_theme(config.theme)
   end
   

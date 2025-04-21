@@ -223,47 +223,13 @@ local function populate_content(buf_id)
   
   -- Get the current theme
   local theme_name = theme_manager.get_current_theme()
-  local theme_module = safe_require("dashy.theme." .. theme_name)
-  
-  if not theme_module or not theme_module.get_content then
-    vim.notify("Failed to load theme module: " .. theme_name, vim.log.levels.ERROR)
+  if not theme_name then
+    vim.notify("No theme selected", vim.log.levels.ERROR)
     return
   end
   
-  -- Get content from theme
-  local content = theme_module.get_content(buf_id, state.win_id)
-  if not content then
-    vim.notify("Failed to get content from theme", vim.log.levels.ERROR)
-    return
-  end
-  
-  -- Combine all content
-  local lines = {}
-  
-  -- Add header
-  for _, line in ipairs(content.header) do
-    table.insert(lines, line)
-  end
-  
-  -- Add center content
-  for _, line in ipairs(content.center) do
-    table.insert(lines, line)
-  end
-  
-  -- Add footer
-  for _, line in ipairs(content.footer) do
-    table.insert(lines, line)
-  end
-  
-  -- Set buffer content
-  api.nvim_buf_set_option(buf_id, "modifiable", true)
-  api.nvim_buf_set_lines(buf_id, 0, -1, false, lines)
-  api.nvim_buf_set_option(buf_id, "modifiable", false)
-  
-  -- Apply highlights
-  if theme_module.apply_highlights then
-    theme_module.apply_highlights(buf_id, lines)
-  end
+  -- Apply theme to buffer
+  theme_manager.apply_to_buffer(buf_id, theme_name)
 end
 
 -- Create the dashboard
