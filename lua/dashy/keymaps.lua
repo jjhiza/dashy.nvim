@@ -126,157 +126,44 @@ local actions = {
 
   -- Execute the currently selected action
   execute_selection = function()
-    local line = vim.api.nvim_get_current_line()
-    local key = line:match("^%s*([%w?])%s*-")
-    if key then
-      -- Find the keymap for this key
-      local keymaps = merge_keymaps()
-      for _, keymap in ipairs(keymaps) do
-        if keymap.key == key then
-          execute_action(keymap.action)
-          return
-        end
+    local current_line = vim.api.nvim_get_current_line()
+    local menu_items = require("dashy.theme.modern").get_menu_items()
+    
+    for _, item in ipairs(menu_items) do
+      if current_line:match(item.desc) then
+        vim.cmd(item.action)
+        return
       end
     end
   end,
 }
 
--- Default keymaps with all menu options
+-- Default keymaps
 local default_keymaps = {
+  {
+    mode = "n",
+    lhs = "<CR>",
+    rhs = "<cmd>lua require('dashy.keymaps').execute_selection()<CR>",
+    opts = { silent = true, noremap = true },
+  },
+}
+
+-- Optional keymaps that can be enabled via config
+local optional_keymaps = {}
+
+-- Number-based default keymaps alternative
+---@type DashyKeymapDefinition[]
+local number_keymaps = {
   {
     key = "<CR>",
     action = "execute_selection",
     desc = "Execute selection",
     label = "<CR>",
   },
-  {
-    key = "n",
-    action = "new_file",
-    desc = "New file",
-    label = "n - New file",
-  },
-  {
-    key = "f",
-    action = "find_files",
-    desc = "Find files",
-    label = "f - Find files",
-  },
-  {
-    key = "r",
-    action = "recent_files",
-    desc = "Recent files",
-    label = "r - Recent files",
-  },
-  {
-    key = "s",
-    action = "load_session",
-    desc = "Load session",
-    label = "s - Load session",
-  },
-  {
-    key = "u",
-    action = "update_plugins",
-    desc = "Update plugins",
-    label = "u - Update plugins",
-  },
-  {
-    key = "h",
-    action = "help",
-    desc = "Help",
-    label = "h - Help",
-  },
-  {
-    key = "c",
-    action = "health",
-    desc = "Health check",
-    label = "c - Health check",
-  },
-  {
-    key = "q",
-    action = "quit",
-    desc = "Quit",
-    label = "q - Quit",
-  },
-}
-
--- Optional keymaps that can be enabled via config
-local optional_keymaps = {
-  {
-    key = "p",
-    action = "find_projects",
-    desc = "Find projects",
-    label = "p - Find projects",
-  },
-}
-
--- Number-based default keymaps alternative
----@type DashyKeymapDefinition[]
-local number_keymaps = {
-  {
-    key = "1",
-    action = "new_file",
-    desc = "New file",
-    label = "1",
-  },
-  {
-    key = "2",
-    action = "find_files",
-    desc = "Find files",
-    label = "2",
-  },
-  {
-    key = "3",
-    action = "find_recent",
-    desc = "Recent files",
-    label = "3",
-  },
-  {
-    key = "5",
-    action = "load_session",
-    desc = "Sessions",
-    label = "5",
-  },
-  {
-    key = "6",
-    action = "update_plugins",
-    desc = "Update plugins",
-    label = "6",
-  },
-  {
-    key = "7",
-    action = "help",
-    desc = "Help",
-    label = "7",
-  },
-  {
-    key = "8",
-    action = "check_health",
-    desc = "Health check",
-    label = "8",
-  },
-  {
-    key = "q",
-    action = "quit",
-    desc = "Close dashboard",
-    label = "q",
-  },
-  {
-    key = "<Esc>",
-    action = "quit",
-    desc = "Close dashboard",
-    label = nil, -- Hidden from shortcut display
-  },
 }
 
 -- Optional number-based keymaps
-local optional_number_keymaps = {
-  {
-    key = "4",
-    action = "find_projects",
-    desc = "Projects",
-    label = "4",
-  },
-}
+local optional_number_keymaps = {}
 
 -- Create a keymap for a specific buffer
 ---@param buf_id number Buffer ID to map keys in
@@ -714,12 +601,18 @@ function M.setup_dashboard_keymaps(buf_id)
     table.insert(active_mappings[buf_id], mapping.key)
   end
 
-  -- Position cursor on first selectable item
+  -- Position cursor on the 'F' in Find File
   vim.schedule(function()
     local lines = vim.api.nvim_buf_get_lines(buf_id, 0, -1, false)
     for i, line in ipairs(lines) do
-      if line:match("^%s*[%w?]%s*-") then
-        vim.api.nvim_win_set_cursor(0, {i, 0})
+      if line:match("Find File") then
+        -- Find the position of 'F' in "Find File"
+        local f_pos = line:find("F")
+        if f_pos then
+          vim.api.nvim_win_set_cursor(0, {i, f_pos - 1})
+        else
+          vim.api.nvim_win_set_cursor(0, {i, 0})
+        end
         break
       end
     end

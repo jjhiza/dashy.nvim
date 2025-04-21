@@ -44,8 +44,6 @@ local default_menu_items = {
     icon_hl = "DashyIconFile",
     desc = "Find File",
     desc_hl = "DashyDesc",
-    key = "f",
-    key_hl = "DashyShortcut",
     action = "Telescope find_files",
   },
   {
@@ -53,8 +51,6 @@ local default_menu_items = {
     icon_hl = "DashyIconSearch",
     desc = "Live Grep",
     desc_hl = "DashyDesc",
-    key = "lg",
-    key_hl = "DashyShortcut",
     action = "Telescope live_grep",
   },
   {
@@ -62,8 +58,6 @@ local default_menu_items = {
     icon_hl = "DashyIconRecent",
     desc = "Recent Files",
     desc_hl = "DashyDesc",
-    key = "r",
-    key_hl = "DashyShortcut",
     action = "Telescope oldfiles",
   },
   {
@@ -71,8 +65,6 @@ local default_menu_items = {
     icon_hl = "DashyIconProject",
     desc = "Projects",
     desc_hl = "DashyDesc",
-    key = "p",
-    key_hl = "DashyShortcut",
     action = "Telescope projects",
   },
   {
@@ -80,8 +72,6 @@ local default_menu_items = {
     icon_hl = "DashyIconConfig",
     desc = "Config",
     desc_hl = "DashyDesc",
-    key = "cf",
-    key_hl = "DashyShortcut",
     action = "edit ~/.config/nvim/init.lua",
   },
   {
@@ -89,8 +79,6 @@ local default_menu_items = {
     icon_hl = "DashyIconLazy",
     desc = "Lazy",
     desc_hl = "DashyDesc",
-    key = "lz",
-    key_hl = "DashyShortcut",
     action = "Lazy",
   },
   {
@@ -98,8 +86,6 @@ local default_menu_items = {
     icon_hl = "DashyIconQuit",
     desc = "Quit",
     desc_hl = "DashyDesc",
-    key = "q",
-    key_hl = "DashyShortcut",
     action = "qa",
   },
 }
@@ -136,25 +122,24 @@ end
 local function format_menu_item(item, width)
   local icon = item.icon or ""
   local desc = item.desc or ""
-  local key = item.key or ""
   
   -- Format with icon if available, otherwise just text
   if has_icon_support() then
     -- Calculate spacing for centering
-    local total_width = vim.fn.strdisplaywidth(icon) + vim.fn.strdisplaywidth(desc) + vim.fn.strdisplaywidth(key) + 10
+    local total_width = vim.fn.strdisplaywidth(icon) + vim.fn.strdisplaywidth(desc) + 10
     local padding = math.floor((width - total_width) / 2)
     if padding < 0 then padding = 2 end
     
     -- Create the item with proper spacing
-    return string.rep(" ", padding) .. icon .. "  " .. desc .. string.rep(" ", 4) .. "[" .. key .. "]"
+    return string.rep(" ", padding) .. icon .. "  " .. desc
   else
     -- No icon support, use text-only format
-    local total_width = vim.fn.strdisplaywidth(desc) + vim.fn.strdisplaywidth(key) + 6
+    local total_width = vim.fn.strdisplaywidth(desc) + 6
     local padding = math.floor((width - total_width) / 2)
     if padding < 0 then padding = 2 end
     
     -- Create the item with proper spacing
-    return string.rep(" ", padding) .. desc .. string.rep(" ", 4) .. "[" .. key .. "]"
+    return string.rep(" ", padding) .. desc
   end
 end
 
@@ -174,7 +159,6 @@ local function apply_menu_extmarks(bufnr, items, start_line)
     -- Find positions of each component
     local icon_pos = line_content:find(item.icon) or 0
     local desc_pos = line_content:find(item.desc) or 0
-    local key_pos = line_content:find("%[" .. item.key .. "%]") or 0
     
     -- Apply highlights if positions are found
     if has_icon_support() and icon_pos > 0 and item.icon_hl then
@@ -188,14 +172,6 @@ local function apply_menu_extmarks(bufnr, items, start_line)
       api.nvim_buf_set_extmark(bufnr, ns, line_num, desc_pos - 1, {
         end_col = desc_pos - 1 + vim.fn.strdisplaywidth(item.desc),
         hl_group = item.desc_hl,
-      })
-    end
-    
-    if key_pos > 0 and item.key_hl then
-      -- Highlight just the key, not the brackets
-      api.nvim_buf_set_extmark(bufnr, ns, line_num, key_pos, {
-        end_col = key_pos + #item.key,
-        hl_group = item.key_hl,
       })
     end
   end
