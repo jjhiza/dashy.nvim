@@ -130,24 +130,13 @@ local function format_menu_item(item, width)
   local icon = item.icon or ""
   local desc = item.desc or ""
   
-  -- Format with icon if available, otherwise just text
-  if has_icon_support() then
-    -- Calculate spacing for centering
-    local total_width = vim.fn.strdisplaywidth(icon) + vim.fn.strdisplaywidth(desc) + 10
-    local padding = math.floor((width - total_width) / 2)
-    if padding < 0 then padding = 2 end
-    
-    -- Create the item with proper spacing
-    return string.rep(" ", padding) .. icon .. "  " .. desc
-  else
-    -- No icon support, use text-only format
-    local total_width = vim.fn.strdisplaywidth(desc) + 6
-    local padding = math.floor((width - total_width) / 2)
-    if padding < 0 then padding = 2 end
-    
-    -- Create the item with proper spacing
-    return string.rep(" ", padding) .. desc
-  end
+  -- Calculate spacing for centering
+  local total_width = vim.fn.strdisplaywidth(icon) + vim.fn.strdisplaywidth(desc) + 10
+  local padding = math.floor((width - total_width) / 2)
+  if padding < 0 then padding = 2 end
+  
+  -- Create the item with proper spacing
+  return string.rep(" ", padding) .. icon .. "  " .. desc
 end
 
 -- Apply ExtMarks for menu items to add highlights
@@ -168,7 +157,7 @@ local function apply_menu_extmarks(bufnr, items, start_line)
     local desc_pos = line_content:find(item.desc) or 0
     
     -- Apply highlights if positions are found
-    if has_icon_support() and icon_pos > 0 and item.icon_hl then
+    if icon_pos > 0 and item.icon_hl then
       api.nvim_buf_set_extmark(bufnr, ns, line_num, icon_pos - 1, {
         end_col = icon_pos - 1 + vim.fn.strdisplaywidth(item.icon),
         hl_group = item.icon_hl,
