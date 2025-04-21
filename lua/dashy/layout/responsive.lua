@@ -144,6 +144,7 @@ end
 ---@param win_id number Window ID
 ---@return table dimensions The calculated dimensions
 function M.calculate_dimensions(buf_id, win_id)
+  -- Get editor dimensions
   local width = api.nvim_win_get_width(0)
   local height = api.nvim_win_get_height(0)
   
@@ -162,116 +163,35 @@ function M.calculate_dimensions(buf_id, win_id)
     dimensions = adjust_standard_layout(buf_id, win_id, width, height)
   end
   
-  -- Apply smooth transitions for resizing
-  M.apply_smooth_transition(win_id, dimensions)
-  
   return dimensions
 end
 
--- Apply smooth transition when resizing
+-- Handle window resize
+---@param buf_id number Buffer ID
 ---@param win_id number Window ID
----@param dimensions table The target dimensions
-local function apply_smooth_transition(win_id, dimensions)
+function M.handle_resize(buf_id, win_id)
   if not api.nvim_win_is_valid(win_id) then
     return
   end
   
-  -- Get current dimensions
-  local current_width = api.nvim_win_get_width(win_id)
-  local current_height = api.nvim_win_get_height(win_id)
-  local current_row = api.nvim_win_get_position(win_id)[1]
-  local current_col = api.nvim_win_get_position(win_id)[2]
-  
-  -- Calculate step size for smooth transition
-  local width_step = math.ceil(math.abs(dimensions.width - current_width) / 5)
-  local height_step = math.ceil(math.abs(dimensions.height - current_height) / 5)
-  local row_step = math.ceil(math.abs(dimensions.row - current_row) / 5)
-  local col_step = math.ceil(math.abs(dimensions.col - current_col) / 5)
-  
-  -- Apply transition in steps
-  local steps = 5
-  local step = 0
-  
-  local timer = vim.loop.new_timer()
-  timer:start(0, 20, vim.schedule_wrap(function()
-    step = step + 1
-    
-    -- Calculate intermediate dimensions
-    local intermediate_width = current_width + (dimensions.width - current_width) * step / steps
-    local intermediate_height = current_height + (dimensions.height - current_height) * step / steps
-    local intermediate_row = current_row + (dimensions.row - current_row) * step / steps
-    local intermediate_col = current_col + (dimensions.col - current_col) * step / steps
-    
-    -- Apply intermediate dimensions
-    api.nvim_win_set_width(win_id, math.floor(intermediate_width))
-    api.nvim_win_set_height(win_id, math.floor(intermediate_height))
-    api.nvim_win_set_position(win_id, math.floor(intermediate_row), math.floor(intermediate_col))
-    
-    -- Stop timer when transition is complete
-    if step >= steps then
-      timer:stop()
-      timer:close()
-    end
-  end))
-end
-
--- Apply smooth transition when resizing
----@param win_id number Window ID
----@param dimensions table The target dimensions
-function M.apply_smooth_transition(win_id, dimensions)
-  apply_smooth_transition(win_id, dimensions)
-end
-
--- Handle window resize events
----@param buf_id number Buffer ID
----@param win_id number Window ID
-function M.handle_resize(buf_id, win_id)
   -- Recalculate dimensions
   local dimensions = M.calculate_dimensions(buf_id, win_id)
   
-  -- Apply new dimensions with smooth transition
-  M.apply_smooth_transition(win_id, dimensions)
-  
-  -- Redraw content
-  local layout = safe_require("dashy.layout")
-  if layout then
-    layout.redraw()
-  end
+  -- Apply new dimensions
+  api.nvim_win_set_width(win_id, dimensions.width)
+  api.nvim_win_set_height(win_id, dimensions.height)
+  api.nvim_win_set_position(win_id, dimensions.row, dimensions.col)
 end
 
--- Optimize layout for different screen sizes
+-- Optimize layout for the current window
 ---@param buf_id number Buffer ID
 ---@param win_id number Window ID
 function M.optimize_layout(buf_id, win_id)
-  -- Get screen dimensions
-  local width = api.nvim_win_get_width(0)
-  local height = api.nvim_win_get_height(0)
-  
-  -- Determine layout type
-  local layout_type = determine_layout_type(width, height)
-  
-  -- Apply layout-specific optimizations
-  if layout_type == "ultrawide" then
-    -- For ultrawide, use a grid layout for shortcuts
-    api.nvim_win_set_option(win_id, "winblend", 5) -- Slight transparency
-  elseif layout_type == "widescreen" then
-    -- For widescreen, use a balanced layout
-    api.nvim_win_set_option(win_id, "winblend", 0) -- No transparency
-  elseif layout_type == "vertical" then
-    -- For vertical, use a compact layout
-    api.nvim_win_set_option(win_id, "winblend", 0) -- No transparency
-  else
-    -- For standard, use default layout
-    api.nvim_win_set_option(win_id, "winblend", 0) -- No transparency
+  if not api.nvim_win_is_valid(win_id) then
+    return
   end
   
-  -- Apply common optimizations
-  api.nvim_win_set_option(win_id, "cursorline", false)
-  api.nvim_win_set_option(win_id, "number", false)
-  api.nvim_win_set_option(win_id, "relativenumber", false)
-  api.nvim_win_set_option(win_id, "signcolumn", "no")
-  api.nvim_win_set_option(win_id, "foldcolumn", "0")
-  api.nvim_win_set_option(win_id, "list", false)
+  -- Set window options for optimal display
   api.nvim_win_set_option(win_id, "wrap", false)
   api.nvim_win_set_option(win_id, "linebreak", false)
   api.nvim_win_set_option(win_id, "breakindent", false)
@@ -292,7 +212,9 @@ function M.optimize_layout(buf_id, win_id)
   api.nvim_win_set_option(win_id, "concealcursor", "")
   api.nvim_win_set_option(win_id, "colorcolumn", "")
   api.nvim_win_set_option(win_id, "winhl", "Normal:DashboardNormal,FloatBorder:DashboardBorder")
+  api.nvim_win_set_option(win_id, "winblend", 0)
 end
 
+-- Return the module
 return M
 
