@@ -714,51 +714,16 @@ function M.setup_dashboard_keymaps(buf_id)
     table.insert(active_mappings[buf_id], mapping.key)
   end
 
-  -- Position cursor on the 'f' key (Find files)
+  -- Position cursor on first selectable item
   vim.schedule(function()
     local lines = vim.api.nvim_buf_get_lines(buf_id, 0, -1, false)
     for i, line in ipairs(lines) do
-      if line:match("^%s*f%s*-") then
-        -- Set cursor to the 'f' character (index 1)
-        vim.api.nvim_win_set_cursor(0, {i, 1})
+      if line:match("^%s*[%w?]%s*-") then
+        vim.api.nvim_win_set_cursor(0, {i, 0})
         break
       end
     end
   end)
-  
-  -- Add j/k navigation to keep cursor in line
-  keymap.set("n", "j", function()
-    local cursor = vim.api.nvim_win_get_cursor(0)
-    local line = vim.api.nvim_get_current_line()
-    local next_line = vim.api.nvim_buf_get_lines(buf_id, cursor[1], cursor[1] + 1, false)[1]
-    
-    if next_line and next_line:match("^%s*[%w?]%s*-") then
-      -- Find the key character in the next line
-      local key = next_line:match("^%s*([%w?])")
-      if key then
-        -- Set cursor to the key character
-        vim.api.nvim_win_set_cursor(0, {cursor[1] + 1, next_line:find(key)})
-      end
-    end
-  end, { buffer = buf_id, silent = true, nowait = true })
-  
-  keymap.set("n", "k", function()
-    local cursor = vim.api.nvim_win_get_cursor(0)
-    local prev_line = vim.api.nvim_buf_get_lines(buf_id, cursor[1] - 2, cursor[1] - 1, false)[1]
-    
-    if prev_line and prev_line:match("^%s*[%w?]%s*-") then
-      -- Find the key character in the previous line
-      local key = prev_line:match("^%s*([%w?])")
-      if key then
-        -- Set cursor to the key character
-        vim.api.nvim_win_set_cursor(0, {cursor[1] - 1, prev_line:find(key)})
-      end
-    end
-  end, { buffer = buf_id, silent = true, nowait = true })
-  
-  -- Store these mappings for cleanup
-  table.insert(active_mappings[buf_id], "j")
-  table.insert(active_mappings[buf_id], "k")
 end
 
 -- Setup dashboard window keymaps
