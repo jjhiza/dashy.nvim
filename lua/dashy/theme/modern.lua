@@ -103,6 +103,12 @@ local colors = {
   info = "#7dcfff",    -- Info color (cyan)
 }
 
+-- Get menu items
+---@return table
+function M.get_menu_items()
+  return default_menu_items
+end
+
 -- Get theme colors
 ---@return table
 function M.get_colors()
