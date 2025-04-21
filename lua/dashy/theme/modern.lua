@@ -40,49 +40,50 @@ local header_large = {
 -- Default menu items
 local default_menu_items = {
   {
-    icon = "󰈞",
+    icon = "󰮗",
     icon_hl = "DashyIconFile",
     desc = "Find File",
     desc_hl = "DashyDesc",
     action = "Telescope find_files",
   },
   {
-    icon = "󰊄",
+    icon = "󰬵",
     icon_hl = "DashyIconSearch",
     desc = "Live Grep",
     desc_hl = "DashyDesc",
     action = "Telescope live_grep",
   },
   {
-    icon = "󰷏",
+    icon = "",
     icon_hl = "DashyIconRecent",
     desc = "Recent Files",
     desc_hl = "DashyDesc",
     action = "Telescope oldfiles",
   },
+  -- Uncomment if you have project.nvim installed, and would like access to this functionality
+  -- {
+  --   icon = "",
+  --   icon_hl = "DashyIconProject",
+  --   desc = "Projects",
+  --   desc_hl = "DashyDesc",
+  --   action = "Telescope projects",
+  -- },
   {
-    icon = "󰚰",
-    icon_hl = "DashyIconProject",
-    desc = "Projects",
-    desc_hl = "DashyDesc",
-    action = "Telescope projects",
-  },
-  {
-    icon = "󰖟",
+    icon = "",
     icon_hl = "DashyIconConfig",
     desc = "Config",
     desc_hl = "DashyDesc",
     action = "edit ~/.config/nvim/init.lua",
   },
   {
-    icon = "󰩂",
+    icon = "󰒲",
     icon_hl = "DashyIconLazy",
     desc = "Lazy",
     desc_hl = "DashyDesc",
     action = "Lazy",
   },
   {
-    icon = "󰿅",
+    icon = "󰈆",
     icon_hl = "DashyIconQuit",
     desc = "Quit",
     desc_hl = "DashyDesc",
