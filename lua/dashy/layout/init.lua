@@ -250,8 +250,11 @@ local function populate_content(buf_id)
     return
   end
   
-  -- Get content from theme
-  content = theme.get_content()
+  -- Get content from theme with proper parameters
+  content = theme.get_content(buf_id, state.win_id)
+  if not content then
+    return
+  end
   
   -- Combine all content
   local lines = {}
@@ -281,7 +284,7 @@ local function populate_content(buf_id)
   if theme.apply_highlights then
     theme.apply_highlights(buf_id, highlights)
   end
-}
+end
 
 -- Create the dashboard
 ---@return boolean success Whether creation was successful
