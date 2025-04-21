@@ -51,7 +51,7 @@ M.config = {
     {
       icon = "󰊄",
       label = "Find Word",
-      key = "g",
+      key = "w",
       action = function()
         if pcall(require, "telescope.builtin") then
           require("telescope.builtin").live_grep()
