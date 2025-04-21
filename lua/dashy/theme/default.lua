@@ -122,7 +122,7 @@ function M.apply_highlights(buf_id, highlights)
   }
 
   -- Apply highlights
-  local ns_id = vim.api.nvim_get_namespace("dashy_theme")
+  local ns_id = vim.api.nvim_create_namespace("dashy_theme")
   for _, hl in ipairs(highlight_groups) do
     vim.api.nvim_buf_add_highlight(buf_id, ns_id, hl.group, hl.line - 1, hl.col_start - 1, hl.col_end - 1)
   end

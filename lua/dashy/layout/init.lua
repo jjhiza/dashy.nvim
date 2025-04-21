@@ -159,6 +159,12 @@ end
 local function create_window()
   vim.notify("Creating dashboard window", vim.log.levels.INFO)
   
+  -- Check if dashboard is already visible
+  if M.is_visible() then
+    vim.notify("Dashboard is already visible", vim.log.levels.WARN)
+    return state.win_id
+  end
+  
   -- Save current window and buffer
   state.prev_win_id = api.nvim_get_current_win()
   state.prev_buf_id = api.nvim_win_get_buf(state.prev_win_id)
@@ -245,6 +251,7 @@ end
 function M.create()
   -- Check if dashboard is already visible
   if M.is_visible() then
+    vim.notify("Dashboard is already visible", vim.log.levels.WARN)
     return true
   end
   
