@@ -141,10 +141,10 @@ local actions = {
 -- Default keymaps
 local default_keymaps = {
   {
-    mode = "n",
-    lhs = "<CR>",
-    rhs = "<cmd>lua require('dashy.keymaps').execute_selection()<CR>",
-    opts = { silent = true, noremap = true },
+    key = "<CR>",
+    action = "execute_selection",
+    desc = "Execute selection",
+    label = "<CR>",
   },
 }
 
