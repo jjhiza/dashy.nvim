@@ -4,6 +4,8 @@
 -- Based on the Rose Pine Moon theme palette.
 -- ]]
 
+local api = vim.api
+
 local M = {}
 
 -- Default theme colors based on Rose Pine Moon
@@ -56,6 +58,74 @@ local colors = {
 ---@return table
 function M.get_colors()
   return colors
+end
+
+-- Get theme content
+---@param bufnr number Buffer ID
+---@param winid number Window ID
+---@return table? content The theme content
+function M.get_content(bufnr, winid)
+  -- Get window dimensions
+  local width = api.nvim_win_get_width(winid)
+  local height = api.nvim_win_get_height(winid)
+  
+  -- Generate content
+  local content = {
+    header = {
+      "  ██████╗   █████╗  ███████╗ ██╗  ██╗ ██╗   ██╗ ",
+      "  ██╔══██╗ ██╔══██╗ ██╔════╝ ██║  ██║ ╚██╗ ██╔╝ ",
+      "  ██║  ██║ ███████║ ███████╗ ███████║  ╚████╔╝  ",
+      "  ██║  ██║ ██╔══██║ ╚════██║ ██╔══██║   ╚██╔╝   ",
+      "  ██████╔╝ ██║  ██║ ███████║ ██║  ██║    ██║    ",
+      "  ╚═════╝  ╚═╝  ╚═╝ ╚══════╝ ╚═╝  ╚═╝    ╚═╝    ",
+    },
+    center = {
+      "",
+      "  [f] Find File",
+      "  [g] Live Grep",
+      "  [r] Recent Files",
+      "  [p] Projects",
+      "  [c] Config",
+      "  [l] Lazy",
+      "  [q] Quit",
+      "",
+    },
+    footer = {
+      "",
+      "  Neovim Dashboard",
+      "  Press 'q' to close",
+      "",
+    },
+  }
+  
+  return content
+end
+
+-- Apply highlights to the dashboard
+---@param buf_id number Buffer ID
+---@param highlights table The highlights to apply
+function M.apply_highlights(buf_id, highlights)
+  -- Define highlight groups
+  local highlight_groups = {
+    -- Header
+    { group = "DashboardHeader", line = 1, col_start = 1, col_end = 80 },
+    { group = "DashboardHeader", line = 2, col_start = 1, col_end = 80 },
+    { group = "DashboardHeader", line = 3, col_start = 1, col_end = 80 },
+    { group = "DashboardHeader", line = 4, col_start = 1, col_end = 80 },
+    { group = "DashboardHeader", line = 5, col_start = 1, col_end = 80 },
+    { group = "DashboardHeader", line = 6, col_start = 1, col_end = 80 },
+    
+    -- Footer
+    { group = "DashboardFooter", line = #highlights - 3, col_start = 1, col_end = 20 },
+    { group = "DashboardFooter", line = #highlights - 2, col_start = 1, col_end = 20 },
+    { group = "DashboardFooter", line = #highlights - 1, col_start = 1, col_end = 20 },
+  }
+
+  -- Apply highlights
+  local ns_id = vim.api.nvim_get_namespace("dashy_theme")
+  for _, hl in ipairs(highlight_groups) do
+    vim.api.nvim_buf_add_highlight(buf_id, ns_id, hl.group, hl.line - 1, hl.col_start - 1, hl.col_end - 1)
+  end
 end
 
 return M 
