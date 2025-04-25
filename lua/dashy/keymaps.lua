@@ -59,93 +59,93 @@ local active_mappings = {}
 
 -- Action handlers
 local actions = {
-  -- Open a new file
-  new_file = function()
-    vim.cmd("enew")
-  end,
+    -- Open a new file
+    new_file = function()
+        vim.cmd("enew")
+    end,
 
-  -- Find files using Telescope
-  find_files = function()
-    if vim.fn.exists(":Telescope") == 2 then
-      vim.cmd("Telescope find_files")
-    else
-      vim.notify("Telescope is not installed", vim.log.levels.WARN)
-    end
-  end,
+    -- Find files using Telescope
+    find_files = function()
+        if vim.fn.exists(":Telescope") == 2 then
+            vim.cmd("Telescope find_files")
+        else
+            vim.notify("Telescope is not installed", vim.log.levels.WARN)
+        end
+    end,
 
-  -- Find recent files using Telescope
-  recent_files = function()
-    if vim.fn.exists(":Telescope") == 2 then
-      vim.cmd("Telescope oldfiles")
-    else
-      vim.notify("Telescope is not installed", vim.log.levels.WARN)
-    end
-  end,
+    -- Find recent files using Telescope
+    recent_files = function()
+        if vim.fn.exists(":Telescope") == 2 then
+            vim.cmd("Telescope oldfiles")
+        else
+            vim.notify("Telescope is not installed", vim.log.levels.WARN)
+        end
+    end,
 
-  -- Find projects using project.nvim
-  find_projects = function()
-    if vim.fn.exists(":Telescope") == 2 and vim.fn.exists(":ProjectRoot") == 2 then
-      vim.cmd("Telescope project")
-    else
-      vim.notify("Telescope and project.nvim are required", vim.log.levels.WARN)
-    end
-  end,
+    -- Find projects using project.nvim
+    find_projects = function()
+        if vim.fn.exists(":Telescope") == 2 and vim.fn.exists(":ProjectRoot") == 2 then
+            vim.cmd("Telescope project")
+        else
+            vim.notify("Telescope and project.nvim are required", vim.log.levels.WARN)
+        end
+    end,
 
-  -- Load session using persistence.nvim
-  load_session = function()
-    if vim.fn.exists(":SessionLoad") == 2 then
-      vim.cmd("SessionLoad")
-    else
-      vim.notify("persistence.nvim is not installed", vim.log.levels.WARN)
-    end
-  end,
+    -- Load session using persistence.nvim
+    load_session = function()
+        if vim.fn.exists(":SessionLoad") == 2 then
+            vim.cmd("SessionLoad")
+        else
+            vim.notify("persistence.nvim is not installed", vim.log.levels.WARN)
+        end
+    end,
 
-  -- Update plugins using lazy.nvim
-  update_plugins = function()
-    if vim.fn.exists(":Lazy") == 2 then
-      vim.cmd("Lazy update")
-    else
-      vim.notify("lazy.nvim is not installed", vim.log.levels.WARN)
-    end
-  end,
+    -- Update plugins using lazy.nvim
+    update_plugins = function()
+        if vim.fn.exists(":Lazy") == 2 then
+            vim.cmd("Lazy update")
+        else
+            vim.notify("lazy.nvim is not installed", vim.log.levels.WARN)
+        end
+    end,
 
-  -- Open help documentation
-  help = function()
-    vim.cmd("help dashy")
-  end,
+    -- Open help documentation
+    help = function()
+        vim.cmd("help dashy")
+    end,
 
-  -- Run health check
-  health = function()
-    vim.cmd("checkhealth")
-  end,
+    -- Run health check
+    health = function()
+        vim.cmd("checkhealth")
+    end,
 
-  -- Quit dashboard
-  quit = function()
-    vim.cmd("q")
-  end,
+    -- Quit dashboard
+    quit = function()
+        vim.cmd("q")
+    end,
 
-  -- Execute the currently selected action
-  execute_selection = function()
-    local current_line = vim.api.nvim_get_current_line()
-    local menu_items = require("dashy.theme.default").get_menu_items()
-    
-    for _, item in ipairs(menu_items) do
-      if current_line:match(item.desc) then
-        vim.cmd(item.action)
-        return
-      end
-    end
-  end,
+    -- Execute the currently selected action
+    execute_selection = function()
+        local current_line = vim.api.nvim_get_current_line()
+        local menu_items = require("dashy.theme.default").get_menu_items()
+
+        for _, item in ipairs(menu_items) do
+            if current_line:match(item.desc) then
+                vim.cmd(item.action)
+                return
+            end
+        end
+    end,
 }
 
 -- Default keymaps
 local default_keymaps = {
-  {
-    key = "<CR>",
-    action = "execute_selection",
-    desc = "Execute selection",
-    label = "<CR>",
-  },
+    {
+        key = "<CR>",
+        action = "execute_selection",
+        desc = "Execute selection",
+        label = "<CR>",
+    },
 }
 
 -- Optional keymaps that can be enabled via config
@@ -154,12 +154,12 @@ local optional_keymaps = {}
 -- Number-based default keymaps alternative
 ---@type DashyKeymapDefinition[]
 local number_keymaps = {
-  {
-    key = "<CR>",
-    action = "execute_selection",
-    desc = "Execute selection",
-    label = "<CR>",
-  },
+    {
+        key = "<CR>",
+        action = "execute_selection",
+        desc = "Execute selection",
+        label = "<CR>",
+    },
 }
 
 -- Optional number-based keymaps
@@ -173,153 +173,154 @@ local optional_number_keymaps = {}
 ---@param callback function|nil Custom callback function
 ---@param opts table|nil Additional options
 local function create_buffer_keymap(buf_id, key, action, desc, callback, opts)
-  opts = vim.tbl_extend("force", { silent = true, noremap = true, nowait = true, desc = desc }, opts or {})
+    opts = vim.tbl_extend("force", { silent = true, noremap = true, nowait = true, desc = desc }, opts or {})
 
-  -- Register the mapping
-  keymap.set("n", key, function()
-    execute_action(action, callback)
-  end, vim.tbl_extend("force", opts, { buffer = buf_id }))
+    -- Register the mapping
+    keymap.set("n", key, function()
+        execute_action(action, callback)
+    end, vim.tbl_extend("force", opts, { buffer = buf_id }))
 
-  -- Store for cleanup
-  if not active_mappings[buf_id] then
-    active_mappings[buf_id] = {}
-  end
-  table.insert(active_mappings[buf_id], key)
+    -- Store for cleanup
+    if not active_mappings[buf_id] then
+        active_mappings[buf_id] = {}
+    end
+    table.insert(active_mappings[buf_id], key)
 end
 
 -- Get keymap definitions based on configuration
 ---@return DashyKeymapDefinition[]
 local function get_keymap_definitions()
-  local config = safe_require("dashy.config")
-  if not config then
-    return default_keymaps
-  end
-
-  -- Check shortcut type configuration
-  local shortcut_type = config.get("shortcut_type") or "letter"
-  local keymaps = shortcut_type == "number" and number_keymaps or default_keymaps
-  
-  -- Check if projects feature is enabled
-  local features = config.get("features") or {}
-  local project_history = features.project_history or {}
-  if project_history.enabled then
-    -- Add optional keymaps if the feature is enabled
-    local optional = shortcut_type == "number" and optional_number_keymaps or optional_keymaps
-    for _, keymap in ipairs(optional) do
-      table.insert(keymaps, keymap)
+    local config = safe_require("dashy.config")
+    if not config then
+        return default_keymaps
     end
-  end
-  
-  return keymaps
+
+    -- Check shortcut type configuration
+    local shortcut_type = config.get("shortcut_type") or "letter"
+    local keymaps = shortcut_type == "number" and number_keymaps or default_keymaps
+
+    -- Check if projects feature is enabled
+    local features = config.get("features") or {}
+    local project_history = features.project_history or {}
+    if project_history.enabled then
+        -- Add optional keymaps if the feature is enabled
+        local optional = shortcut_type == "number" and optional_number_keymaps or optional_keymaps
+        for _, keymap in ipairs(optional) do
+            table.insert(keymaps, keymap)
+        end
+    end
+
+    return keymaps
 end
 
 -- Get user-defined keymaps from configuration
 ---@return DashyKeymapDefinition[]
 local function get_user_keymaps()
-  local config = safe_require("dashy.config")
-  if not config then
-    return {}
-  end
+    local config = safe_require("dashy.config")
+    if not config then
+        return {}
+    end
 
-  local user_keymaps = config.get("keymaps") or {}
-  return user_keymaps
+    local user_keymaps = config.get("keymaps") or {}
+    return user_keymaps
 end
 
 -- Merge default keymaps with user-defined keymaps
 ---@return DashyKeymapDefinition[]
 local function merge_keymaps()
-  local keymaps = get_keymap_definitions()
-  local user_keymaps = get_user_keymaps()
+    local keymaps = get_keymap_definitions()
+    local user_keymaps = get_user_keymaps()
 
-  -- Create a map of default keymaps by key for easy lookup
-  local keymaps_by_key = {}
-  for _, keymap in ipairs(keymaps) do
-    keymaps_by_key[keymap.key] = true
-  end
-
-  -- Add user keymaps that don't override defaults
-  for _, user_keymap in ipairs(user_keymaps) do
-    -- If key already exists, replace the default mapping
-    local existing_idx = nil
-    for idx, keymap in ipairs(keymaps) do
-      if keymap.key == user_keymap.key then
-        existing_idx = idx
-        break
-      end
+    -- Create a map of default keymaps by key for easy lookup
+    local keymaps_by_key = {}
+    for _, keymap in ipairs(keymaps) do
+        keymaps_by_key[keymap.key] = true
     end
 
-    if existing_idx then
-      keymaps[existing_idx] = user_keymap
-    else
-      table.insert(keymaps, user_keymap)
-    end
-  end
+    -- Add user keymaps that don't override defaults
+    for _, user_keymap in ipairs(user_keymaps) do
+        -- If key already exists, replace the default mapping
+        local existing_idx = nil
+        for idx, keymap in ipairs(keymaps) do
+            if keymap.key == user_keymap.key then
+                existing_idx = idx
+                break
+            end
+        end
 
-  return keymaps
+        if existing_idx then
+            keymaps[existing_idx] = user_keymap
+        else
+            table.insert(keymaps, user_keymap)
+        end
+    end
+
+    return keymaps
 end
 
 -- Setup keymaps for the dashboard
 ---@param bufnr number Buffer ID
 function M.setup_dashboard_keymaps(bufnr)
-  -- Set up Enter key to execute selection
-  vim.keymap.set("n", "<CR>", execute_selection, {
-    buffer = bufnr,
-    silent = true,
-    noremap = true,
-    desc = "Execute selection",
-  })
+    -- Set up Enter key to execute selection
+    vim.keymap.set("n", "<CR>", function()
+        actions.execute_selection()
+    end, {
+        buffer = bufnr,
+        silent = true,
+        noremap = true,
+        desc = "Execute selection",
+    })
 
-  -- Set up 'q' to close the buffer
-  vim.keymap.set("n", "q", "<cmd>bdelete<CR>", {
-    buffer = bufnr,
-    silent = true,
-    noremap = true,
-    desc = "Close Dashy",
-  })
-  
-  -- Position cursor on the 'F' in "Find File"
-  vim.schedule(function()
-    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-    for i, line in ipairs(lines) do
-      if line:match("Find File") then
-        local col = line:find("F")
-        if col then
-          vim.api.nvim_win_set_cursor(0, {i, col - 1})
-          break
+    -- Set up 'q' to close the buffer
+    vim.keymap.set("n", "q", "<cmd>bdelete<CR>", {
+        buffer = bufnr,
+        silent = true,
+        noremap = true,
+        desc = "Close Dashy",
+    })
+
+    -- Position cursor on the 'F' in "Find File"
+    vim.schedule(function()
+        local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+        for i, line in ipairs(lines) do
+            if line:match("Find File") then
+                local col = line:find("F")
+                if col then
+                    vim.api.nvim_win_set_cursor(0, { i, col - 1 })
+                    break
+                end
+            end
         end
-      end
-    end
-  end)
+    end)
 end
 
 -- Setup window-specific keymaps
 ---@param win_id number Window ID
 function M.setup_dashboard_win_keymaps(win_id)
-  -- Set window-local options
-  vim.api.nvim_win_set_option(win_id, "number", false)
-  vim.api.nvim_win_set_option(win_id, "relativenumber", false)
-  vim.api.nvim_win_set_option(win_id, "cursorline", false)
-  vim.api.nvim_win_set_option(win_id, "cursorcolumn", false)
-  vim.api.nvim_win_set_option(win_id, "foldcolumn", "0")
-  vim.api.nvim_win_set_option(win_id, "signcolumn", "no")
-  vim.api.nvim_win_set_option(win_id, "colorcolumn", "")
+    -- Set window-local options
+    vim.api.nvim_win_set_option(win_id, "number", false)
+    vim.api.nvim_win_set_option(win_id, "relativenumber", false)
+    vim.api.nvim_win_set_option(win_id, "cursorline", false)
+    vim.api.nvim_win_set_option(win_id, "cursorcolumn", false)
+    vim.api.nvim_win_set_option(win_id, "foldcolumn", "0")
+    vim.api.nvim_win_set_option(win_id, "signcolumn", "no")
+    vim.api.nvim_win_set_option(win_id, "colorcolumn", "")
 end
 
 -- Execute a keymap action
 ---@param action DashyKeymapAction The action to execute
 ---@param callback function|nil Custom callback for custom actions
 local function execute_action(action, callback)
-  if actions[action] then
-    if action == "custom" then
-      actions[action](callback)
+    if actions[action] then
+        if action == "custom" then
+            actions[action](callback)
+        else
+            actions[action]()
+        end
     else
-      actions[action]()
+        vim.notify("Unknown action: " .. action, vim.log.levels.ERROR)
     end
-  else
-    vim.notify("Unknown action: " .. action, vim.log.levels.ERROR)
-  end
 end
 
 -- Return the module
 return M
-
