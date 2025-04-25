@@ -121,7 +121,9 @@ local actions = {
 
     -- Quit dashboard
     quit = function()
-        vim.cmd("q")
+        -- Get the Dashy module to properly close the dashboard
+        local dashy = require("dashy")
+        dashy.close()
     end,
 
     -- Execute the currently selected action
@@ -271,7 +273,7 @@ function M.setup_dashboard_keymaps(bufnr)
         desc = "Execute selection",
     })
 
-    -- Set up 'q' to close the buffer using the quit action
+    -- Set up 'q' to close the dashboard using the quit action
     vim.keymap.set("n", "q", function()
         actions.quit()
     end, {

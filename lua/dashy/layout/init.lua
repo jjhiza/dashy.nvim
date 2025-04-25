@@ -57,7 +57,11 @@ local theme_manager = require("dashy.theme")
 -- Check if dashboard is visible
 ---@return boolean is_visible Whether the dashboard is currently visible
 function M.is_visible()
-  return state.is_visible and state.win_id ~= nil and api.nvim_win_is_valid(state.win_id)
+  return state.is_visible and 
+         state.win_id ~= nil and 
+         api.nvim_win_is_valid(state.win_id) and
+         state.buf_id ~= nil and
+         api.nvim_buf_is_valid(state.buf_id)
 end
 
 -- Get the current state
@@ -316,15 +320,35 @@ function M.create()
   -- Populate content
   populate_content(state.buf_id)
   
-  -- Set up autocmd to restore window options when leaving the dashboard
+  -- Set up autocmd to reset state when leaving the dashboard
   local augroup = api.nvim_create_augroup("DashyRestore", { clear = true })
+  
+  -- Reset state when leaving the dashboard window
   api.nvim_create_autocmd("WinLeave", {
     group = augroup,
-    pattern = tostring(win_id),
+    buffer = state.buf_id,
     callback = function()
       if state.prev_win_id and api.nvim_win_is_valid(state.prev_win_id) then
         restore_window_options(state.prev_win_id)
       end
+    end,
+  })
+  
+  -- Reset state when an action is performed from the dashboard
+  api.nvim_create_autocmd("BufLeave", {
+    group = augroup,
+    buffer = state.buf_id,
+    callback = function()
+      -- Reset the state after a short delay to ensure we don't interfere with actions
+      vim.defer_fn(function()
+        if state.buf_id and not api.nvim_buf_is_valid(state.buf_id) then
+          -- Buffer is no longer valid, so reset the state
+          state.win_id = nil
+          state.buf_id = nil
+          state.is_visible = false
+          api.nvim_del_augroup_by_name("DashyRestore")
+        end
+      end, 100)
     end,
   })
   
