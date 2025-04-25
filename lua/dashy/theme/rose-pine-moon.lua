@@ -102,20 +102,22 @@ function M.apply_highlights(buf_id, highlights)
   local ns_id = api.nvim_create_namespace("dashy_theme")
   
   -- Apply gradient colors to the banner
-  for i, line in ipairs(banner_colors) do
+  -- The banner starts at line 2 (after the empty line) and has 6 lines of content
+  for i, color in ipairs(banner_colors) do
     -- Define highlight group name for this line
     local hl_group = "DashboardHeader" .. i
     
     -- Create the highlight group with the gradient color
-    vim.api.nvim_set_hl(0, hl_group, { fg = line, bold = true })
+    vim.api.nvim_set_hl(0, hl_group, { fg = color, bold = true })
     
-    -- Apply the highlight to the banner line
-    api.nvim_buf_add_highlight(buf_id, ns_id, hl_group, i + 1, 0, -1)
+    -- Apply the highlight to the banner line (offset by 1 for the empty line)
+    -- The banner starts at line 2 and goes to line 7 (6 lines of content)
+    api.nvim_buf_add_highlight(buf_id, ns_id, hl_group, i + 1, 2, -1)
   end
   
   -- Apply other highlights
   local highlight_groups = {
-    -- Footer
+    -- Footer (keep footer highlight)
     { group = "DashboardFooter", line = #highlights - 2, col_start = 2, col_end = 20 },
   }
   
