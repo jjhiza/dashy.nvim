@@ -20,6 +20,7 @@ local M = {}
 ---@field win_opts table Window options saved before dashboard was created
 ---@field is_visible boolean Whether the dashboard is currently visible
 ---@field dimensions {width: number, height: number, row: number, col: number} Current dashboard dimensions
+---@field had_neotree boolean Whether Neotree was open before dashboard was opened
 local state = {
   win_id = nil,
   buf_id = nil,
@@ -33,6 +34,7 @@ local state = {
     row = 0,
     col = 0,
   },
+  had_neotree = false,
 }
 
 -- Dashboard content (to be populated by theme)
@@ -154,6 +156,59 @@ local function setup_window_options(win_id)
   end
 end
 
+-- Check if Neotree is open
+---@return boolean is_open Whether Neotree is open
+local function is_neotree_open()
+  -- Check for Neotree windows
+  for _, win in ipairs(api.nvim_list_wins()) do
+    local buf = api.nvim_win_get_buf(win)
+    if api.nvim_buf_is_valid(buf) then
+      local filetype = api.nvim_buf_get_option(buf, "filetype")
+      if filetype == "neo-tree" then
+        return true
+      end
+    end
+  end
+  return false
+end
+
+-- Close Neotree if it's open
+---@return boolean was_open Whether Neotree was open and closed
+local function close_neotree()
+  -- Check if Neotree is loaded
+  local has_neotree = pcall(require, "neo-tree")
+  if not has_neotree then
+    return false
+  end
+  
+  -- Check if Neotree is open
+  local neotree_open = is_neotree_open()
+  if neotree_open then
+    -- Close Neotree
+    vim.cmd("Neotree close")
+    return true
+  end
+  
+  return false
+end
+
+-- Reopen Neotree if it was open
+---@param was_open boolean Whether Neotree was open before
+local function reopen_neotree(was_open)
+  if not was_open then
+    return
+  end
+  
+  -- Check if Neotree is loaded
+  local has_neotree = pcall(require, "neo-tree")
+  if not has_neotree then
+    return
+  end
+  
+  -- Reopen Neotree
+  vim.cmd("Neotree show")
+end
+
 -- Create the dashboard window
 ---@return number? win_id The created window ID or nil if creation failed
 local function create_window()
@@ -164,6 +219,9 @@ local function create_window()
     vim.notify("Dashboard is already visible", vim.log.levels.WARN)
     return state.win_id
   end
+  
+  -- Check if Neotree is open and close it
+  state.had_neotree = close_neotree()
   
   -- Save current window and buffer
   state.prev_win_id = api.nvim_get_current_win()
@@ -284,11 +342,13 @@ function M.destroy()
   -- Store current window and buffer IDs
   local current_win_id = state.win_id
   local current_buf_id = state.buf_id
+  local had_neotree = state.had_neotree
   
   -- Reset state before closing window to avoid recursion
   state.win_id = nil
   state.buf_id = nil
   state.is_visible = false
+  state.had_neotree = false
   
   -- First create a new buffer to switch to
   local new_buf = api.nvim_create_buf(true, true)
@@ -302,6 +362,11 @@ function M.destroy()
   if api.nvim_buf_is_valid(current_buf_id) then
     api.nvim_buf_delete(current_buf_id, { force = true })
   end
+  
+  -- Restore Neotree if it was open before
+  vim.defer_fn(function()
+    reopen_neotree(had_neotree)
+  end, 50) -- Small delay to ensure the buffer change is complete
   
   return true
 end
