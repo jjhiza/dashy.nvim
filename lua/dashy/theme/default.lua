@@ -92,14 +92,18 @@ function M.get_content(bufnr, winid)
 			"██████╔╝ ██║  ██║ ███████║ ██║  ██║    ██║   ",
 			"╚═════╝  ╚═╝  ╚═╝ ╚══════╝ ╚═╝  ╚═╝    ╚═╝   ",
 		},
+		-- Two-column layout for menu items
 		center = {
-			"[󰮗]  Find File",
-			"[󰬵]  Live Grep",
-			"[󰷏]  Recent Files",
-      -- "[󰚰]  Projects", uncomment if using project.nvim, and want to add this menu entry
-			"[󰖟]  Config",
-			"[󰒲]  Lazy",
-			"[󰈆]  Quit",
+			{
+				"[󰮗]  Find File",
+				"[󰬵]  Live Grep",
+				"[󰷏]  Recent Files",
+			},
+			{
+				"[󰖟]  Config",
+				"[󰒲]  Lazy",
+				"[󰈆]  Quit",
+			}
 		},
 		footer = {
 			"Neovim Dashboard",
@@ -138,29 +142,58 @@ function M.apply_highlights(buf_id, lines)
 	end
 	
 	-- Menu item highlights
-	for i = content_start, content_start + 5 do  -- 6 menu items
+	-- We have 3 lines with two menu items each
+	for i = content_start, content_start + 2 do  -- 3 rows of menu items
 		if i <= #lines then
 			local line = lines[i]
-			-- Find the bracket positions safely
-			local bracket_start = line:find("%[")
-			local bracket_end = line:find("%]")
 			
-			if bracket_start and bracket_end then
-				-- Highlight icon differently
+			-- Look for brackets in left column
+			local left_bracket_start = line:find("%[")
+			local left_bracket_end = line:find("%]", left_bracket_start)
+			
+			if left_bracket_start and left_bracket_end then
+				-- Highlight left icon
 				table.insert(highlight_groups, {
 					group = "DashboardIcon",
 					line = i - 1,
-					col_start = bracket_start - 1,
-					col_end = bracket_end
+					col_start = left_bracket_start - 1,
+					col_end = left_bracket_end
 				})
 				
-				-- Highlight menu text
+				-- Find where left menu text ends
+				local left_text_end = line:find("%s%s%s", left_bracket_end) or line:len()
+				
+				-- Highlight left menu text
 				table.insert(highlight_groups, {
 					group = "DashboardCenter",
 					line = i - 1,
-					col_start = bracket_end,
-					col_end = line:len()
+					col_start = left_bracket_end,
+					col_end = left_text_end
 				})
+				
+				-- Look for brackets in right column
+				local right_bracket_start = line:find("%[", left_text_end)
+				if right_bracket_start then
+					local right_bracket_end = line:find("%]", right_bracket_start)
+					
+					if right_bracket_end then
+						-- Highlight right icon
+						table.insert(highlight_groups, {
+							group = "DashboardIcon",
+							line = i - 1,
+							col_start = right_bracket_start - 1,
+							col_end = right_bracket_end
+						})
+						
+						-- Highlight right menu text
+						table.insert(highlight_groups, {
+							group = "DashboardCenter",
+							line = i - 1,
+							col_start = right_bracket_end,
+							col_end = line:len()
+						})
+					end
+				end
 			end
 		end
 	end

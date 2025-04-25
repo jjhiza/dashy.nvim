@@ -96,20 +96,62 @@ function M.apply_to_buffer(buf_id, theme_name)
       -- Add a spacer
       table.insert(lines, "")
       
-      -- Calculate the maximum length of menu items for alignment
-      local menu_items = content.center
-      local menu_item_width = 0
-      for _, line in ipairs(menu_items) do
-        menu_item_width = math.max(menu_item_width, vim.fn.strdisplaywidth(line))
-      end
-      
-      -- Calculate the common starting position for all menu items
-      local center_position = math.floor((win_width - menu_item_width) / 2)
-      
-      -- Center menu items with consistent left alignment
-      for _, line in ipairs(menu_items) do
-        local padded_line = string.rep(" ", center_position) .. line
-        table.insert(lines, padded_line)
+      -- Process the two-column layout for menu items
+      if content.center and type(content.center) == "table" then
+        -- Check if center is a two-column layout
+        if content.center[1] and type(content.center[1]) == "table" then
+          -- Get column data
+          local left_column = content.center[1]
+          local right_column = content.center[2] or {}
+          
+          -- Find the maximum item width in each column
+          local left_width = 0
+          local right_width = 0
+          
+          for _, item in ipairs(left_column) do
+            left_width = math.max(left_width, vim.fn.strdisplaywidth(item))
+          end
+          
+          for _, item in ipairs(right_column) do
+            right_width = math.max(right_width, vim.fn.strdisplaywidth(item))
+          end
+          
+          -- Calculate the total width of both columns plus spacing between them
+          local column_spacing = 20 -- Adjust spacing between columns
+          local total_width = left_width + right_width + column_spacing
+          
+          -- Calculate the starting position for perfect centering
+          local left_start = math.floor((win_width - total_width) / 2)
+          local right_start = left_start + left_width + column_spacing
+          
+          -- Create the two-column rows
+          local max_rows = math.max(#left_column, #right_column)
+          for i = 1, max_rows do
+            local row = ""
+            
+            -- Add left column item if available
+            if i <= #left_column then
+              row = row .. string.rep(" ", left_start) .. left_column[i]
+            else
+              row = row .. string.rep(" ", left_start + left_width)
+            end
+            
+            -- Add right column item if available
+            if i <= #right_column then
+              -- Calculate padding to align right column
+              local padding = right_start - (left_start + (i <= #left_column and vim.fn.strdisplaywidth(left_column[i]) or 0))
+              row = row .. string.rep(" ", padding) .. right_column[i]
+            end
+            
+            table.insert(lines, row)
+          end
+        else
+          -- Fall back to single column if not properly formatted
+          for _, line in ipairs(content.center) do
+            local centered_line = M.center_line(line, win_width)
+            table.insert(lines, centered_line)
+          end
+        end
       end
       
       -- Add a spacer
