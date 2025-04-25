@@ -38,17 +38,17 @@ end
 ---@param height number Editor height
 ---@return table dimensions The adjusted dimensions
 local function adjust_ultrawide_layout(buf_id, win_id, width, height)
-  -- For ultrawide, we want to limit the width to prevent extreme stretching
-  local content_width = math.floor(width * 0.4) -- 40% of screen width
-  local content_height = math.floor(height * 0.8) -- 80% of screen height
+  -- Use 100% of available space
+  local content_width = width
+  local content_height = height
   
   -- Ensure minimum dimensions
   content_width = math.max(content_width, 80)
   content_height = math.max(content_height, 20)
   
-  -- Center the window
-  local row = math.floor((height - content_height) / 2)
-  local col = math.floor((width - content_width) / 2)
+  -- No need to center since we're using full space
+  local row = 0
+  local col = 0
   
   return {
     width = content_width,
@@ -65,17 +65,17 @@ end
 ---@param height number Editor height
 ---@return table dimensions The adjusted dimensions
 local function adjust_widescreen_layout(buf_id, win_id, width, height)
-  -- For widescreen, we want to use a bit more width
-  local content_width = math.floor(width * 0.6) -- 60% of screen width
-  local content_height = math.floor(height * 0.8) -- 80% of screen height
+  -- Use 100% of available space
+  local content_width = width
+  local content_height = height
   
   -- Ensure minimum dimensions
   content_width = math.max(content_width, 80)
   content_height = math.max(content_height, 20)
   
-  -- Center the window
-  local row = math.floor((height - content_height) / 2)
-  local col = math.floor((width - content_width) / 2)
+  -- No need to center since we're using full space
+  local row = 0
+  local col = 0
   
   return {
     width = content_width,
@@ -92,17 +92,17 @@ end
 ---@param height number Editor height
 ---@return table dimensions The adjusted dimensions
 local function adjust_vertical_layout(buf_id, win_id, width, height)
-  -- For vertical layouts, we want to use most of the width
-  local content_width = math.floor(width * 0.9) -- 90% of screen width
-  local content_height = math.floor(height * 0.7) -- 70% of screen height
+  -- Use 100% of available space
+  local content_width = width
+  local content_height = height
   
   -- Ensure minimum dimensions
   content_width = math.max(content_width, 50)
   content_height = math.max(content_height, 15)
   
-  -- Center the window
-  local row = math.floor((height - content_height) / 2)
-  local col = math.floor((width - content_width) / 2)
+  -- No need to center since we're using full space
+  local row = 0
+  local col = 0
   
   return {
     width = content_width,
@@ -119,17 +119,17 @@ end
 ---@param height number Editor height
 ---@return table dimensions The adjusted dimensions
 local function adjust_standard_layout(buf_id, win_id, width, height)
-  -- For standard layouts, we want a balanced approach
-  local content_width = math.floor(width * 0.7) -- 70% of screen width
-  local content_height = math.floor(height * 0.75) -- 75% of screen height
+  -- Use 100% of available space
+  local content_width = width
+  local content_height = height
   
   -- Ensure minimum dimensions
   content_width = math.max(content_width, 60)
   content_height = math.max(content_height, 15)
   
-  -- Center the window
-  local row = math.floor((height - content_height) / 2)
-  local col = math.floor((width - content_width) / 2)
+  -- No need to center since we're using full space
+  local row = 0
+  local col = 0
   
   return {
     width = content_width,

@@ -122,7 +122,7 @@ end
 -- Set window options for the dashboard
 ---@param win_id number Window ID
 local function setup_window_options(win_id)
-  -- Set window options for full-screen mode
+  -- Set window options while preserving notification visibility
   api.nvim_win_set_option(win_id, "wrap", false)
   api.nvim_win_set_option(win_id, "linebreak", false)
   api.nvim_win_set_option(win_id, "breakindent", false)
@@ -144,7 +144,7 @@ local function setup_window_options(win_id)
   api.nvim_win_set_option(win_id, "colorcolumn", "")
   api.nvim_win_set_option(win_id, "winhl", "Normal:DashboardNormal,EndOfBuffer:DashboardEndOfBuffer")
   
-  -- Set window-local highlights
+  -- Keep winblend at 0 to ensure readability
   api.nvim_win_set_option(win_id, "winblend", 0)
   
   -- Set window-local keymaps
@@ -183,10 +183,10 @@ local function create_window()
   -- Set buffer options
   setup_buffer_options(buf_id)
   
-  -- For full-screen mode, we use the entire editor area
+  -- Store dimensions - using the entire viewport
   local dimensions = {
-    width = api.nvim_win_get_width(0),
-    height = api.nvim_win_get_height(0),
+    width = api.nvim_get_option_value("columns", {}),
+    height = api.nvim_get_option_value("lines", {}) - 1, -- Subtract command line
     row = 0,
     col = 0,
   }
@@ -195,23 +195,17 @@ local function create_window()
   state.dimensions = dimensions
   vim.notify(string.format("Window dimensions: %dx%d", dimensions.width, dimensions.height), vim.log.levels.INFO)
   
-  -- Create the window as a full-screen buffer
-  local win_id = api.nvim_open_win(buf_id, true, {
-    relative = "editor",
-    width = dimensions.width,
-    height = dimensions.height,
-    row = dimensions.row,
-    col = dimensions.col,
-    style = "minimal",
-    border = "none",
-  })
+  -- Use the current window instead of creating a floating window
+  local current_win = api.nvim_get_current_win()
+  api.nvim_win_set_buf(current_win, buf_id)
+  local win_id = current_win
   
   if not win_id then
-    vim.notify("Failed to create dashboard window", vim.log.levels.ERROR)
+    vim.notify("Failed to set dashboard buffer to window", vim.log.levels.ERROR)
     api.nvim_buf_delete(buf_id, { force = true })
     return nil
   end
-  vim.notify("Created window: " .. win_id, vim.log.levels.INFO)
+  vim.notify("Using window: " .. win_id, vim.log.levels.INFO)
   
   -- Set window options
   setup_window_options(win_id)
@@ -287,20 +281,27 @@ function M.destroy()
     return true
   end
   
-  -- Close the window
-  if api.nvim_win_is_valid(state.win_id) then
-    api.nvim_win_close(state.win_id, true)
-  end
+  -- Store current window and buffer IDs
+  local current_win_id = state.win_id
+  local current_buf_id = state.buf_id
   
-  -- Delete the buffer
-  if api.nvim_buf_is_valid(state.buf_id) then
-    api.nvim_buf_delete(state.buf_id, { force = true })
-  end
-  
-  -- Reset state
+  -- Reset state before closing window to avoid recursion
   state.win_id = nil
   state.buf_id = nil
   state.is_visible = false
+  
+  -- First create a new buffer to switch to
+  local new_buf = api.nvim_create_buf(true, true)
+  
+  -- Switch the window to the new buffer
+  if api.nvim_win_is_valid(current_win_id) then
+    api.nvim_win_set_buf(current_win_id, new_buf)
+  end
+  
+  -- Delete the dashboard buffer
+  if api.nvim_buf_is_valid(current_buf_id) then
+    api.nvim_buf_delete(current_buf_id, { force = true })
+  end
   
   return true
 end
