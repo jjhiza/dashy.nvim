@@ -23,6 +23,7 @@ function M.setup(config)
   local accent = theme.accent or "#eb6f92" -- Rose Pine Moon Love (Rose)
   local secondary = theme.secondary or "#31748f" -- Rose Pine Moon Pine
   local border = theme.border or "#393552" -- Rose Pine Moon Overlay
+  local rose = "#ea9a97" -- Custom rose color for header
   
   -- Define highlight groups
   local highlights = {
@@ -32,15 +33,15 @@ function M.setup(config)
     DashboardEndOfBuffer = { fg = bg, bg = bg },
     
     -- Dashboard header and footer
-    DashboardHeader = { fg = "#eb6f92", bg = bg, bold = true }, -- Rose color
+    DashboardHeader = { fg = rose, bg = bg, bold = true }, -- Custom rose color
     DashboardFooter = { fg = fg, bg = bg, italic = true },
     
     -- Dashboard title
-    DashboardTitle = { fg = "#eb6f92", bg = bg, bold = true }, -- Rose color
+    DashboardTitle = { fg = rose, bg = bg, bold = true }, -- Custom rose color
     
     -- Dashboard center menu
     DashboardCenter = { fg = fg, bg = bg },
-    DashboardCenterCursor = { fg = "#31748f", bg = bg, bold = true }, -- Pine color for cursor line
+    DashboardCenterCursor = { fg = secondary, bg = bg, bold = true }, -- Pine color for cursor line
     
     -- Dashboard sections
     DashboardSection = { fg = "#c4a7e7", bg = bg, bold = true }, -- Iris color for sections

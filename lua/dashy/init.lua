@@ -116,6 +116,12 @@ function Dashy.setup(opts)
   -- Initialize configuration
   config.init(Dashy.config)
   
+  -- Initialize highlights first
+  local highlights = Dashy.safe_require("dashy.highlights")
+  if highlights then
+    highlights.setup(Dashy.config)
+  end
+  
   -- Initialize features
   local features = Dashy.safe_require("dashy.features")
   if features then
