@@ -23,7 +23,7 @@ local colors = {
 	info = "#31748f", -- Pine
 
 	-- Additional semantic colors
-	title = "#c4a7e7", -- Iris
+	title = "#ea9a97", -- Custom rose color for header
 	subtitle = "#9ccfd8", -- Foam
 	muted = "#6e6a86", -- Muted
 	highlight = "#524f67", -- Highlight High
@@ -119,6 +119,9 @@ function M.apply_highlights(buf_id, lines)
 	
 	-- Define highlight groups
 	local highlight_groups = {}
+	
+	-- Set up the DashboardHeader highlight group with the custom rose color
+	vim.api.nvim_set_hl(0, "DashboardHeader", { fg = colors.title, bold = true })
 	
 	-- Header highlights (first 6 lines)
 	for i = 1, header_lines do
