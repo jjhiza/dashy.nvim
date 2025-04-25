@@ -197,22 +197,14 @@ Dashy.notify = function(msg, level, opts)
   opts = opts or {}
   level = level or vim.log.levels.INFO
   
-  -- Only allow ERROR level messages for Dashy to be shown while dashboard is visible
-  if opts.dashy_notification and Dashy._is_dashboard_active() then
-    if level < vim.log.levels.ERROR then
-      -- Silently log but don't show notification
-      if vim.fn.has('nvim-0.10.0') == 1 then
-        vim.log.debug(msg)
-      end
-      return
-    end
-  end
+  -- Mark as a Dashy notification
+  opts.dashy_notification = true
   
-  -- Use original notify for non-Dashy notifications or allowed Dashy notifications
-  if Dashy._original_notify then
-    Dashy._original_notify(msg, level, opts)
+  -- Let the hooked notification system handle it
+  if vim.notify then
+    vim.notify(msg, level, opts)
   else
-    -- Fallback if original notify hasn't been saved yet
+    -- Fallback if notify isn't available
     vim.api.nvim_echo({{msg, level == vim.log.levels.ERROR and "ErrorMsg" or nil}}, true, {})
   end
 end
@@ -230,7 +222,7 @@ Dashy._setup_notification_handling = function()
   if not Dashy._original_notify then
     Dashy._original_notify = vim.notify
     
-    -- Override vim.notify with our filtered version
+    -- Override vim.notify with our filtered version that respects Noice
     vim.notify = function(msg, level, opts)
       opts = opts or {}
       
@@ -241,11 +233,38 @@ Dashy._setup_notification_handling = function()
          msg:match("theme module") or
          msg:match("highlights")
       ) then
+        -- Mark as a Dashy notification
         opts.dashy_notification = true
+        
+        -- Check if we should suppress this notification
+        if Dashy._is_dashboard_active() and level < vim.log.levels.ERROR then
+          -- Silently log but don't show notification
+          if vim.fn.has('nvim-0.10.0') == 1 then
+            vim.log.debug(msg)
+          end
+          return -- Skip notification entirely
+        end
       end
       
-      -- Call our custom notify function
-      Dashy.notify(msg, level, opts)
+      -- Use original notify for non-Dashy notifications or allowed Dashy notifications
+      if Dashy._original_notify then
+        -- Handle Noice compatibility
+        if opts and opts.dashy_notification then
+          -- For Dashy notifications, add Noice-specific settings to suppress if needed
+          if type(opts) ~= "table" then opts = {} end
+          if not opts.noice then opts.noice = {} end
+          
+          -- Only present important notifications
+          if level < vim.log.levels.ERROR then
+            opts.noice.enabled = false
+          end
+        end
+        
+        Dashy._original_notify(msg, level, opts)
+      else
+        -- Fallback if original notify hasn't been saved yet
+        vim.api.nvim_echo({{msg, level == vim.log.levels.ERROR and "ErrorMsg" or nil}}, true, {})
+      end
     end
   end
 end

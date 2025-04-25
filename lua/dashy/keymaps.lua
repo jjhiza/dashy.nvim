@@ -374,10 +374,14 @@ function M.setup_dashboard_win_keymaps(win_id)
     vim.api.nvim_win_set_option(win_id, "signcolumn", "no")
     vim.api.nvim_win_set_option(win_id, "colorcolumn", "")
     
-    -- Set the cursorline highlight to use DashboardCenterCursor
-    local buf_id = vim.api.nvim_win_get_buf(win_id)
-    vim.api.nvim_win_set_hl_ns(win_id, vim.api.nvim_create_namespace("dashy_highlights"))
-    vim.api.nvim_set_hl(0, "CursorLine", { link = "DashboardCenterCursor" })
+    -- Create a namespace for dashboard-specific highlights
+    local ns_id = vim.api.nvim_create_namespace("dashy_highlights")
+    
+    -- Apply the namespace to the window
+    vim.api.nvim_win_set_hl_ns(win_id, ns_id)
+    
+    -- Set CursorLine highlight in the namespace to use DashboardCenterCursor
+    vim.api.nvim_set_hl(ns_id, "CursorLine", { link = "DashboardCenterCursor" })
 end
 
 -- Execute a keymap action
