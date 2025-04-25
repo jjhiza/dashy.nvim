@@ -129,14 +129,84 @@ local actions = {
     -- Execute the currently selected action
     execute_selection = function()
         local current_line = vim.api.nvim_get_current_line()
-        local menu_items = require("dashy.theme.default").get_menu_items()
-
+        local theme_module = safe_require("dashy.theme.default")
+        
+        if not theme_module or not theme_module.get_menu_items then
+            vim.notify("Could not load menu items", vim.log.levels.ERROR)
+            return
+        end
+        
+        local menu_items = theme_module.get_menu_items()
+        local current_buf = vim.api.nvim_get_current_buf()
+        
+        -- Helper function to execute an action
+        local function execute_item_action(action)
+            -- Special handling for bdelete to close Dashy properly
+            if action == "bdelete" then
+                -- Use the close method from Dashy to ensure proper cleanup
+                local dashy = require("dashy")
+                dashy.close()
+            else
+                -- Execute other commands normally
+                vim.cmd(action)
+            end
+        end
+        
+        -- Check for menu items in the current line
         for _, item in ipairs(menu_items) do
+            -- Try to match any part of the description in the line
             if current_line:match(item.desc) then
-                vim.cmd(item.action)
+                execute_item_action(item.action)
                 return
             end
         end
+        
+        -- If we're here, no match found in the standard way
+        -- Try a more thorough approach for complex layouts
+        local cursor_pos = vim.api.nvim_win_get_cursor(0)
+        local cursor_row = cursor_pos[1] - 1 -- Convert to 0-based
+        local cursor_col = cursor_pos[2]
+        
+        -- Find bracket positions to differentiate left and right items
+        local left_bracket_start = current_line:find("%[")
+        local left_bracket_end = left_bracket_start and current_line:find("%]", left_bracket_start)
+        
+        local right_bracket_start = nil
+        local right_bracket_end = nil
+        
+        if left_bracket_end then
+            right_bracket_start = current_line:find("%[", left_bracket_end + 1)
+            right_bracket_end = right_bracket_start and current_line:find("%]", right_bracket_start)
+        end
+        
+        -- Check which column the cursor is in
+        local in_right_column = right_bracket_start and cursor_col >= right_bracket_start
+        
+        if in_right_column then
+            -- Extract right column text
+            local right_text = current_line:sub(right_bracket_end + 1)
+            
+            -- Match against menu items
+            for _, item in ipairs(menu_items) do
+                if right_text:match(item.desc) then
+                    execute_item_action(item.action)
+                    return
+                end
+            end
+        else
+            -- Extract left column text
+            local left_text = left_bracket_end and current_line:sub(left_bracket_end + 1, right_bracket_start and (right_bracket_start - 1) or #current_line)
+            
+            -- Match against menu items
+            for _, item in ipairs(menu_items) do
+                if left_text and left_text:match(item.desc) then
+                    execute_item_action(item.action)
+                    return
+                end
+            end
+        end
+        
+        vim.notify("No action found for the selected item", vim.log.levels.WARN)
     end,
 }
 
@@ -283,11 +353,13 @@ function M.setup_dashboard_keymaps(bufnr)
         desc = "Close Dashy",
     })
 
-    -- Position cursor on the 'F' in "Find File"
+    -- Position cursor on the first menu item
     vim.schedule(function()
         local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+        -- Find the first line after the header that contains a menu item
         for i, line in ipairs(lines) do
-            if line:match("Find File") then
+            if line:match("%[") and line:match("Find File") then
+                -- Find the position of the "F" in "Find File"
                 local col = line:find("F")
                 if col then
                     vim.api.nvim_win_set_cursor(0, { i, col - 1 })
@@ -296,6 +368,85 @@ function M.setup_dashboard_keymaps(bufnr)
             end
         end
     end)
+    
+    -- Add arrow key navigation for the menu
+    vim.keymap.set("n", "j", function()
+        -- Move down one row
+        local cursor = vim.api.nvim_win_get_cursor(0)
+        local current_line = vim.api.nvim_get_current_line()
+        local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+        local next_line = lines[cursor[1] + 1]
+        
+        -- Check if next line has menu items (contains brackets)
+        if next_line and next_line:match("%[") then
+            vim.api.nvim_win_set_cursor(0, {cursor[1] + 1, cursor[2]})
+        end
+    end, {
+        buffer = bufnr,
+        silent = true,
+        noremap = true,
+        desc = "Move selection down",
+    })
+    
+    vim.keymap.set("n", "k", function()
+        -- Move up one row
+        local cursor = vim.api.nvim_win_get_cursor(0)
+        local current_line = vim.api.nvim_get_current_line()
+        local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+        local prev_line = lines[cursor[1] - 1]
+        
+        -- Check if prev line has menu items (contains brackets)
+        if prev_line and prev_line:match("%[") then
+            vim.api.nvim_win_set_cursor(0, {cursor[1] - 1, cursor[2]})
+        end
+    end, {
+        buffer = bufnr,
+        silent = true,
+        noremap = true,
+        desc = "Move selection up",
+    })
+    
+    vim.keymap.set("n", "l", function()
+        -- Move right to the right column
+        local cursor = vim.api.nvim_win_get_cursor(0)
+        local current_line = vim.api.nvim_get_current_line()
+        
+        -- Find the bracket positions
+        local left_bracket_start = current_line:find("%[")
+        local left_bracket_end = left_bracket_start and current_line:find("%]", left_bracket_start)
+        local right_bracket_start = left_bracket_end and current_line:find("%[", left_bracket_end + 1)
+        
+        -- If there's a right column item, move to it
+        if right_bracket_start then
+            local right_col_text_pos = right_bracket_start + current_line:sub(right_bracket_start):find("[^%[%]%s]") - 1
+            vim.api.nvim_win_set_cursor(0, {cursor[1], right_col_text_pos})
+        end
+    end, {
+        buffer = bufnr,
+        silent = true,
+        noremap = true,
+        desc = "Move to right column",
+    })
+    
+    vim.keymap.set("n", "h", function()
+        -- Move left to the left column
+        local cursor = vim.api.nvim_win_get_cursor(0)
+        local current_line = vim.api.nvim_get_current_line()
+        
+        -- Find the bracket positions
+        local left_bracket_start = current_line:find("%[")
+        local left_text_pos = left_bracket_start and left_bracket_start + current_line:sub(left_bracket_start):find("[^%[%]%s]") - 1
+        
+        -- If we're not already at the left column, move to it
+        if left_text_pos and cursor[2] > left_text_pos then
+            vim.api.nvim_win_set_cursor(0, {cursor[1], left_text_pos})
+        end
+    end, {
+        buffer = bufnr,
+        silent = true,
+        noremap = true,
+        desc = "Move to left column",
+    })
 end
 
 -- Setup window-specific keymaps
