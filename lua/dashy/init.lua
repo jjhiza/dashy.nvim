@@ -15,11 +15,9 @@ local ns = vim.api.nvim_create_namespace("dashy")
 ---@field private ns number The namespace ID for Dashy
 ---@field private initialized boolean Whether Dashy has been initialized
 ---@field private config table Configuration options
----@field private _original_notify function? The original vim.notify function
 local Dashy = {
   ns = ns,
   initialized = false,
-  _original_notify = nil,
 }
 
 -- Safe requiring of modules with error handling
@@ -106,9 +104,6 @@ function Dashy.setup(opts)
     return Dashy
   end
 
-  -- Set up notification handling immediately
-  Dashy._setup_notification_handling()
-
   -- Load and merge configurations
   Dashy.config = vim.tbl_deep_extend("force", Dashy._DEFAULT_CONFIG, opts or {})
 
@@ -186,22 +181,12 @@ function Dashy.setup(opts)
     end,
     desc = "Redraw Dashy on resize",
   })
-  
-  -- Ensure proper cleanup when Neovim exits
-  vim.api.nvim_create_autocmd("VimLeavePre", {
-    group = augroup,
-    callback = function()
-      -- Restore original notification function
-      Dashy._restore_notification_handling()
-    end,
-    desc = "Restore notification handling on exit",
-  })
 
   Dashy.initialized = true
   return Dashy
 end
 
--- Custom notify function to filter Dashy notifications
+-- Custom notify function that works with Noice
 ---@param msg string Message to notify
 ---@param level number|nil Log level
 ---@param opts table|nil Notification options
@@ -210,16 +195,11 @@ Dashy.notify = function(msg, level, opts)
   opts = opts or {}
   level = level or vim.log.levels.INFO
   
-  -- Mark as a Dashy notification
-  opts.dashy_notification = true
+  -- Set Dashy-specific options to make it compatible with Noice
+  opts.title = opts.title or "Dashy"
   
-  -- Let the notification system handle it
-  if vim.notify then
-    vim.notify(msg, level, opts)
-  else
-    -- Fallback if notify isn't available
-    vim.api.nvim_echo({{msg, level == vim.log.levels.ERROR and "ErrorMsg" or nil}}, true, {})
-  end
+  -- Use the standard vim.notify
+  vim.notify(msg, level, opts)
 end
 
 -- Check if dashboard is currently active
@@ -227,45 +207,6 @@ end
 Dashy._is_dashboard_active = function()
   local layout = Dashy.safe_require("dashy.layout")
   return layout and layout.is_visible()
-end
-
--- Override vim.notify when entering dashboard
-Dashy._setup_notification_handling = function()
-  -- Save original notify function if not already saved
-  if not Dashy._original_notify then
-    Dashy._original_notify = vim.notify
-    
-    -- Override vim.notify with a simpler version
-    vim.notify = function(msg, level, opts)
-      opts = opts or {}
-      
-      -- Just add dashy_notification flag to help identify these notifications
-      -- and let Noice or other notification handlers deal with them
-      if type(msg) == "string" and (
-         msg:match("^Dashy") or 
-         msg:match("dashboard") or
-         msg:match("theme module") or
-         msg:match("highlights")
-      ) then
-        opts.dashy_notification = true
-      end
-      
-      -- Call original notify without additional filtering
-      if Dashy._original_notify then
-        Dashy._original_notify(msg, level, opts)
-      else
-        vim.api.nvim_echo({{msg, level == vim.log.levels.ERROR and "ErrorMsg" or nil}}, true, {})
-      end
-    end
-  end
-end
-
--- Restore original notification function
-Dashy._restore_notification_handling = function()
-  if Dashy._original_notify then
-    vim.notify = Dashy._original_notify
-    Dashy._original_notify = nil
-  end
 end
 
 -- Open the Dashy dashboard
@@ -307,9 +248,6 @@ function Dashy.close()
   local success, err = pcall(function()
     layout.destroy()
   end)
-
-  -- Restore original notification function
-  Dashy._restore_notification_handling()
 
   if not success then
     vim.notify("Failed to close Dashy: " .. err, vim.log.levels.ERROR)
