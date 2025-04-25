@@ -77,25 +77,38 @@ function M.apply_to_buffer(buf_id, theme_name)
   -- Get theme content and apply it
   if theme_module.get_content then
     vim.notify("Getting content from theme module", vim.log.levels.INFO)
-    local content = theme_module.get_content(buf_id, api.nvim_get_current_win())
+    local win_id = api.nvim_get_current_win()
+    local content = theme_module.get_content(buf_id, win_id)
     if content then
       vim.notify("Content received from theme module", vim.log.levels.INFO)
       -- Combine all content
       local lines = {}
       
-      -- Add header
+      -- Get window width for centering
+      local win_width = api.nvim_win_get_width(win_id)
+      
+      -- Center header content
       for _, line in ipairs(content.header) do
-        table.insert(lines, line)
+        local centered_line = M.center_line(line, win_width)
+        table.insert(lines, centered_line)
       end
       
-      -- Add center content
+      -- Add a spacer
+      table.insert(lines, "")
+      
+      -- Center center content
       for _, line in ipairs(content.center) do
-        table.insert(lines, line)
+        local centered_line = M.center_line(line, win_width)
+        table.insert(lines, centered_line)
       end
       
-      -- Add footer
+      -- Add a spacer
+      table.insert(lines, "")
+      
+      -- Center footer content
       for _, line in ipairs(content.footer) do
-        table.insert(lines, line)
+        local centered_line = M.center_line(line, win_width)
+        table.insert(lines, centered_line)
       end
       
       vim.notify("Setting buffer content with " .. #lines .. " lines", vim.log.levels.INFO)
@@ -129,6 +142,17 @@ function M.apply_to_buffer(buf_id, theme_name)
   if win_id then
     api.nvim_win_set_option(win_id, "winhl", string.format("Normal:DashboardNormal,EndOfBuffer:DashboardEndOfBuffer"))
   end
+end
+
+-- Center a line of text in the given width
+---@param line string The line to center
+---@param width number The width to center within
+---@return string The centered line
+function M.center_line(line, width)
+  local line_length = vim.fn.strdisplaywidth(line)
+  local padding = math.floor((width - line_length) / 2)
+  if padding < 0 then padding = 0 end
+  return string.rep(" ", padding) .. line
 end
 
 -- Initialize theme system

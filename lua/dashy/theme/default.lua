@@ -85,30 +85,25 @@ function M.get_content(bufnr, winid)
 	-- Generate content
 	local content = {
 		header = {
-			"  ██████╗   █████╗  ███████╗ ██╗  ██╗ ██╗   ██╗ ",
-			"  ██╔══██╗ ██╔══██╗ ██╔════╝ ██║  ██║ ╚██╗ ██╔╝ ",
-			"  ██║  ██║ ███████║ ███████╗ ███████║  ╚████╔╝  ",
-			"  ██║  ██║ ██╔══██║ ╚════██║ ██╔══██║   ╚██╔╝   ",
-			"  ██████╔╝ ██║  ██║ ███████║ ██║  ██║    ██║    ",
-			"  ╚═════╝  ╚═╝  ╚═╝ ╚══════╝ ╚═╝  ╚═╝    ╚═╝    ",
+			"██████╗   █████╗  ███████╗ ██╗  ██╗ ██╗   ██╗",
+			"██╔══██╗ ██╔══██╗ ██╔════╝ ██║  ██║ ╚██╗ ██╔╝",
+			"██║  ██║ ███████║ ███████╗ ███████║  ╚████╔╝ ",
+			"██║  ██║ ██╔══██║ ╚════██║ ██╔══██║   ╚██╔╝  ",
+			"██████╔╝ ██║  ██║ ███████║ ██║  ██║    ██║   ",
+			"╚═════╝  ╚═╝  ╚═╝ ╚══════╝ ╚═╝  ╚═╝    ╚═╝   ",
 		},
 		center = {
-			"",
-			"  [󰮗] Find File",
-			"  [󰬵] Live Grep",
-			"  [󰷏] Recent Files",
-      -- "  [󰚰] Projects", uncomment if using project.nvim, and want to add this menu
-      -- entry
-			"  [󰖟] Config",
-			"  [󰒲] Lazy",
-			"  [󰈆] Quit",
-			"",
+			"[󰮗] Find File",
+			"[󰬵] Live Grep",
+			"[󰷏] Recent Files",
+      -- "[󰚰] Projects", uncomment if using project.nvim, and want to add this menu entry
+			"[󰖟] Config",
+			"[󰒲] Lazy",
+			"[󰈆] Quit",
 		},
 		footer = {
-			"",
-			"  Neovim Dashboard",
-			"  Press 'q' to close",
-			"",
+			"Neovim Dashboard",
+			"Press 'q' to close",
 		},
 	}
 
@@ -117,28 +112,76 @@ end
 
 -- Apply highlights to the dashboard
 ---@param buf_id number Buffer ID
----@param highlights table The highlights to apply
-function M.apply_highlights(buf_id, highlights)
+---@param lines table The content lines
+function M.apply_highlights(buf_id, lines)
+	-- Calculate positions for highlights
+	local header_lines = 6  -- Number of header lines
+	local content_start = header_lines + 2  -- Header + spacer
+	
 	-- Define highlight groups
-	local highlight_groups = {
-		-- Header
-		{ group = "DashboardHeader", line = 1, col_start = 1, col_end = 80 },
-		{ group = "DashboardHeader", line = 2, col_start = 1, col_end = 80 },
-		{ group = "DashboardHeader", line = 3, col_start = 1, col_end = 80 },
-		{ group = "DashboardHeader", line = 4, col_start = 1, col_end = 80 },
-		{ group = "DashboardHeader", line = 5, col_start = 1, col_end = 80 },
-		{ group = "DashboardHeader", line = 6, col_start = 1, col_end = 80 },
-
-		-- Footer
-		{ group = "DashboardFooter", line = #highlights - 3, col_start = 1, col_end = 20 },
-		{ group = "DashboardFooter", line = #highlights - 2, col_start = 1, col_end = 20 },
-		{ group = "DashboardFooter", line = #highlights - 1, col_start = 1, col_end = 20 },
-	}
+	local highlight_groups = {}
+	
+	-- Header highlights (first 6 lines)
+	for i = 1, header_lines do
+		local line = lines[i]
+		local start_col = line:find("[^ ]") - 1  -- Find first non-space character
+		local end_col = line:len()
+		table.insert(highlight_groups, {
+			group = "DashboardHeader",
+			line = i - 1,  -- 0-indexed
+			col_start = start_col,
+			col_end = end_col
+		})
+	end
+	
+	-- Menu item highlights
+	for i = content_start, content_start + 5 do  -- 6 menu items
+		local line = lines[i]
+		local icon_end = line:find("]")
+		if icon_end then
+			-- Highlight icon differently
+			table.insert(highlight_groups, {
+				group = "DashboardIcon",
+				line = i - 1,
+				col_start = line:find("[") - 1,
+				col_end = icon_end
+			})
+			
+			-- Highlight menu text
+			table.insert(highlight_groups, {
+				group = "DashboardCenter",
+				line = i - 1,
+				col_start = icon_end,
+				col_end = line:len()
+			})
+		end
+	end
+	
+	-- Footer highlights
+	local footer_start = #lines - 2  -- Last 2 lines
+	for i = footer_start, #lines do
+		local line = lines[i]
+		local start_col = line:find("[^ ]") - 1  -- Find first non-space character
+		if start_col < 0 then start_col = 0 end
+		table.insert(highlight_groups, {
+			group = "DashboardFooter",
+			line = i - 1,
+			col_start = start_col,
+			col_end = line:len()
+		})
+	end
 
 	-- Apply highlights
 	local ns_id = vim.api.nvim_create_namespace("dashy_theme")
 	for _, hl in ipairs(highlight_groups) do
-		vim.api.nvim_buf_add_highlight(buf_id, ns_id, hl.group, hl.line - 1, hl.col_start - 1, hl.col_end - 1)
+		vim.api.nvim_buf_add_highlight(
+			buf_id,
+			ns_id,
+			hl.group,
+			hl.line,
+			hl.col_start,
+			hl.col_end
+		)
 	end
 end
 

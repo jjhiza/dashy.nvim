@@ -37,6 +37,9 @@ function M.setup(config)
     -- Dashboard title
     DashboardTitle = { fg = accent, bg = bg, bold = true },
     
+    -- Dashboard center menu
+    DashboardCenter = { fg = fg, bg = bg },
+    
     -- Dashboard sections
     DashboardSection = { fg = accent, bg = bg, bold = true },
     DashboardSubsection = { fg = fg, bg = bg, italic = true },
@@ -120,6 +123,7 @@ function M.update_theme(theme_name)
     DashboardHeader = { fg = colors.accent, bg = colors.bg, bold = true },
     DashboardFooter = { fg = colors.fg, bg = colors.bg, italic = true },
     DashboardTitle = { fg = colors.accent, bg = colors.bg, bold = true },
+    DashboardCenter = { fg = colors.fg, bg = colors.bg },
     DashboardSection = { fg = colors.accent, bg = colors.bg, bold = true },
     DashboardSubsection = { fg = colors.fg, bg = colors.bg, italic = true },
     DashboardItem = { fg = colors.fg, bg = colors.bg },
