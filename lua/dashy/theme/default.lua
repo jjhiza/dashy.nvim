@@ -93,13 +93,13 @@ function M.get_content(bufnr, winid)
 			"╚═════╝  ╚═╝  ╚═╝ ╚══════╝ ╚═╝  ╚═╝    ╚═╝   ",
 		},
 		center = {
-			"[󰮗] Find File",
-			"[󰬵] Live Grep",
-			"[󰷏] Recent Files",
-      -- "[󰚰] Projects", uncomment if using project.nvim, and want to add this menu entry
-			"[󰖟] Config",
-			"[󰒲] Lazy",
-			"[󰈆] Quit",
+			"[󰮗]  Find File",
+			"[󰬵]  Live Grep",
+			"[󰷏]  Recent Files",
+      -- "[󰚰]  Projects", uncomment if using project.nvim, and want to add this menu entry
+			"[󰖟]  Config",
+			"[󰒲]  Lazy",
+			"[󰈆]  Quit",
 		},
 		footer = {
 			"Neovim Dashboard",
@@ -124,51 +124,63 @@ function M.apply_highlights(buf_id, lines)
 	-- Header highlights (first 6 lines)
 	for i = 1, header_lines do
 		local line = lines[i]
-		local start_col = line:find("[^ ]") - 1  -- Find first non-space character
-		local end_col = line:len()
-		table.insert(highlight_groups, {
-			group = "DashboardHeader",
-			line = i - 1,  -- 0-indexed
-			col_start = start_col,
-			col_end = end_col
-		})
+		local start_col = line:find("[^ ]")
+		if start_col then
+			start_col = start_col - 1  -- Convert to 0-indexed
+			local end_col = line:len()
+			table.insert(highlight_groups, {
+				group = "DashboardHeader",
+				line = i - 1,  -- 0-indexed
+				col_start = start_col,
+				col_end = end_col
+			})
+		end
 	end
 	
 	-- Menu item highlights
 	for i = content_start, content_start + 5 do  -- 6 menu items
-		local line = lines[i]
-		local icon_end = line:find("]")
-		if icon_end then
-			-- Highlight icon differently
-			table.insert(highlight_groups, {
-				group = "DashboardIcon",
-				line = i - 1,
-				col_start = line:find("[") - 1,
-				col_end = icon_end
-			})
+		if i <= #lines then
+			local line = lines[i]
+			-- Find the bracket positions safely
+			local bracket_start = line:find("%[")
+			local bracket_end = line:find("%]")
 			
-			-- Highlight menu text
-			table.insert(highlight_groups, {
-				group = "DashboardCenter",
-				line = i - 1,
-				col_start = icon_end,
-				col_end = line:len()
-			})
+			if bracket_start and bracket_end then
+				-- Highlight icon differently
+				table.insert(highlight_groups, {
+					group = "DashboardIcon",
+					line = i - 1,
+					col_start = bracket_start - 1,
+					col_end = bracket_end
+				})
+				
+				-- Highlight menu text
+				table.insert(highlight_groups, {
+					group = "DashboardCenter",
+					line = i - 1,
+					col_start = bracket_end,
+					col_end = line:len()
+				})
+			end
 		end
 	end
 	
 	-- Footer highlights
 	local footer_start = #lines - 2  -- Last 2 lines
 	for i = footer_start, #lines do
-		local line = lines[i]
-		local start_col = line:find("[^ ]") - 1  -- Find first non-space character
-		if start_col < 0 then start_col = 0 end
-		table.insert(highlight_groups, {
-			group = "DashboardFooter",
-			line = i - 1,
-			col_start = start_col,
-			col_end = line:len()
-		})
+		if i > 0 and i <= #lines then
+			local line = lines[i]
+			local start_col = line:find("[^ ]")
+			if start_col then
+				start_col = start_col - 1  -- Convert to 0-indexed
+				table.insert(highlight_groups, {
+					group = "DashboardFooter",
+					line = i - 1,
+					col_start = start_col,
+					col_end = line:len()
+				})
+			end
+		end
 	end
 
 	-- Apply highlights

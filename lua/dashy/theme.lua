@@ -96,10 +96,20 @@ function M.apply_to_buffer(buf_id, theme_name)
       -- Add a spacer
       table.insert(lines, "")
       
-      -- Center center content
-      for _, line in ipairs(content.center) do
-        local centered_line = M.center_line(line, win_width)
-        table.insert(lines, centered_line)
+      -- Calculate the maximum length of menu items for alignment
+      local menu_items = content.center
+      local menu_item_width = 0
+      for _, line in ipairs(menu_items) do
+        menu_item_width = math.max(menu_item_width, vim.fn.strdisplaywidth(line))
+      end
+      
+      -- Calculate the common starting position for all menu items
+      local center_position = math.floor((win_width - menu_item_width) / 2)
+      
+      -- Center menu items with consistent left alignment
+      for _, line in ipairs(menu_items) do
+        local padded_line = string.rep(" ", center_position) .. line
+        table.insert(lines, padded_line)
       end
       
       -- Add a spacer
