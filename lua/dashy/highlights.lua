@@ -18,10 +18,11 @@ local safe_require = require("dashy").safe_require
 function M.setup(config)
   -- Get theme colors
   local theme = config.theme or {}
-  local bg = theme.bg or "#1a1b26"
-  local fg = theme.fg or "#a9b1d6"
-  local accent = theme.accent or "#7aa2f7"
-  local border = theme.border or "#24283b"
+  local bg = theme.bg or "#232136" -- Rose Pine Moon Base
+  local fg = theme.fg or "#e0def4" -- Rose Pine Moon Text
+  local accent = theme.accent or "#eb6f92" -- Rose Pine Moon Love (Rose)
+  local secondary = theme.secondary or "#31748f" -- Rose Pine Moon Pine
+  local border = theme.border or "#393552" -- Rose Pine Moon Overlay
   
   -- Define highlight groups
   local highlights = {
@@ -31,69 +32,70 @@ function M.setup(config)
     DashboardEndOfBuffer = { fg = bg, bg = bg },
     
     -- Dashboard header and footer
-    DashboardHeader = { fg = accent, bg = bg, bold = true },
+    DashboardHeader = { fg = "#eb6f92", bg = bg, bold = true }, -- Rose color
     DashboardFooter = { fg = fg, bg = bg, italic = true },
     
     -- Dashboard title
-    DashboardTitle = { fg = accent, bg = bg, bold = true },
+    DashboardTitle = { fg = "#eb6f92", bg = bg, bold = true }, -- Rose color
     
     -- Dashboard center menu
     DashboardCenter = { fg = fg, bg = bg },
+    DashboardCenterCursor = { fg = "#31748f", bg = bg, bold = true }, -- Pine color for cursor line
     
     -- Dashboard sections
-    DashboardSection = { fg = accent, bg = bg, bold = true },
+    DashboardSection = { fg = "#c4a7e7", bg = bg, bold = true }, -- Iris color for sections
     DashboardSubsection = { fg = fg, bg = bg, italic = true },
     
     -- Dashboard items
     DashboardItem = { fg = fg, bg = bg },
-    DashboardItemSelected = { fg = accent, bg = bg, bold = true },
-    DashboardItemHover = { fg = accent, bg = bg, italic = true },
+    DashboardItemSelected = { fg = "#31748f", bg = bg, bold = true }, -- Pine color for selection
+    DashboardItemHover = { fg = "#31748f", bg = bg, italic = true }, -- Pine color for hover
     
     -- Dashboard buttons
     DashboardButton = { fg = fg, bg = bg },
-    DashboardButtonSelected = { fg = accent, bg = bg, bold = true },
-    DashboardButtonHover = { fg = accent, bg = bg, italic = true },
-    DashboardKey = { fg = accent, bg = bg, bold = true },
+    DashboardButtonSelected = { fg = "#31748f", bg = bg, bold = true }, -- Pine color for selection
+    DashboardButtonHover = { fg = "#31748f", bg = bg, italic = true }, -- Pine color for hover
+    DashboardKey = { fg = "#c4a7e7", bg = bg, bold = true }, -- Iris color for keys
     
     -- Dashboard cards
     DashboardCard = { fg = fg, bg = bg },
-    DashboardCardTitle = { fg = accent, bg = bg, bold = true },
+    DashboardCardTitle = { fg = "#eb6f92", bg = bg, bold = true }, -- Rose color
     DashboardCardContent = { fg = fg, bg = bg },
     
     -- Dashboard lists
     DashboardList = { fg = fg, bg = bg },
     DashboardListItem = { fg = fg, bg = bg },
-    DashboardListItemSelected = { fg = accent, bg = bg, bold = true },
-    DashboardListItemHover = { fg = accent, bg = bg, italic = true },
-    DashboardBullet = { fg = accent, bg = bg },
+    DashboardListItemSelected = { fg = "#31748f", bg = bg, bold = true }, -- Pine color for selection
+    DashboardListItemHover = { fg = "#31748f", bg = bg, italic = true }, -- Pine color for hover
+    DashboardBullet = { fg = "#c4a7e7", bg = bg }, -- Iris color for bullets
     
     -- Dashboard grids
     DashboardGrid = { fg = fg, bg = bg },
     DashboardGridItem = { fg = fg, bg = bg },
-    DashboardGridItemSelected = { fg = accent, bg = bg, bold = true },
-    DashboardGridItemHover = { fg = accent, bg = bg, italic = true },
+    DashboardGridItemSelected = { fg = "#31748f", bg = bg, bold = true }, -- Pine color for selection
+    DashboardGridItemHover = { fg = "#31748f", bg = bg, italic = true }, -- Pine color for hover
     
     -- Dashboard progress bars
     DashboardProgress = { fg = fg, bg = bg },
-    DashboardProgressFilled = { fg = accent, bg = bg },
+    DashboardProgressFilled = { fg = "#eb6f92", bg = bg }, -- Rose color
     
     -- Dashboard search
-    DashboardSearch = { fg = accent, bg = bg, bold = true },
-    DashboardSearchMatch = { fg = accent, bg = bg, bold = true, underline = true },
+    DashboardSearch = { fg = "#c4a7e7", bg = bg, bold = true }, -- Iris color for search
+    DashboardSearchMatch = { fg = "#c4a7e7", bg = bg, bold = true, underline = true }, -- Iris color for search matches
     
     -- Dashboard help
     DashboardHelp = { fg = fg, bg = bg, italic = true },
-    DashboardHelpKey = { fg = accent, bg = bg, bold = true },
+    DashboardHelpKey = { fg = "#c4a7e7", bg = bg, bold = true }, -- Iris color for help keys
     
     -- Dashboard icons
-    DashboardIcon = { fg = accent, bg = bg },
+    DashboardIcon = { fg = "#c4a7e7", bg = bg }, -- Iris color for icons
     
     -- Dashboard status
     DashboardStatus = { fg = fg, bg = bg },
-    DashboardStatusSuccess = { fg = "#9ece6a", bg = bg },
-    DashboardStatusWarning = { fg = "#e0af68", bg = bg },
-    DashboardStatusError = { fg = "#f7768e", bg = bg },
-    DashboardStatusInfo = { fg = "#7aa2f7", bg = bg },
+    DashboardStatusSuccess = { fg = "#9ccfd8", bg = bg }, -- Foam color
+    DashboardStatusWarning = { fg = "#f6c177", bg = bg }, -- Gold color
+    DashboardStatusError = { fg = "#eb6f92", bg = bg }, -- Love (Rose) color
+    DashboardStatusInfo = { fg = "#31748f", bg = bg }, -- Pine color
   }
   
   -- Apply highlights
@@ -116,47 +118,56 @@ function M.update_theme(theme_name)
   end
   
   local colors = theme.get_colors()
+  
+  -- Use Rose Pink Moon colors specifically
+  local rose = "#eb6f92"  -- Love/Rose color
+  local pine = "#31748f"  -- Pine color
+  local iris = "#c4a7e7"  -- Iris color
+  local foam = "#9ccfd8"  -- Foam color
+  local gold = "#f6c177"  -- Gold color
+  
   local highlights = {
     DashboardNormal = { fg = colors.fg, bg = colors.bg },
     DashboardBorder = { fg = colors.border, bg = colors.bg },
     DashboardEndOfBuffer = { fg = colors.bg, bg = colors.bg },
-    DashboardHeader = { fg = colors.accent, bg = colors.bg, bold = true },
+    DashboardHeader = { fg = rose, bg = colors.bg, bold = true }, -- Rose color
     DashboardFooter = { fg = colors.fg, bg = colors.bg, italic = true },
-    DashboardTitle = { fg = colors.accent, bg = colors.bg, bold = true },
+    DashboardTitle = { fg = rose, bg = colors.bg, bold = true }, -- Rose color
     DashboardCenter = { fg = colors.fg, bg = colors.bg },
-    DashboardSection = { fg = colors.accent, bg = colors.bg, bold = true },
+    DashboardCenterCursor = { fg = pine, bg = colors.bg, bold = true }, -- Pine color for cursor line
+    DashboardSection = { fg = iris, bg = colors.bg, bold = true }, -- Iris color for sections
     DashboardSubsection = { fg = colors.fg, bg = colors.bg, italic = true },
     DashboardItem = { fg = colors.fg, bg = colors.bg },
-    DashboardItemSelected = { fg = colors.accent, bg = colors.bg, bold = true },
-    DashboardItemHover = { fg = colors.accent, bg = colors.bg, italic = true },
+    DashboardItemSelected = { fg = pine, bg = colors.bg, bold = true }, -- Pine color for selection
+    DashboardItemHover = { fg = pine, bg = colors.bg, italic = true }, -- Pine color for hover
     DashboardButton = { fg = colors.fg, bg = colors.bg },
-    DashboardButtonSelected = { fg = colors.accent, bg = colors.bg, bold = true },
-    DashboardButtonHover = { fg = colors.accent, bg = colors.bg, italic = true },
-    DashboardKey = { fg = colors.accent, bg = colors.bg, bold = true },
+    DashboardButtonSelected = { fg = pine, bg = colors.bg, bold = true }, -- Pine color for selection
+    DashboardButtonHover = { fg = pine, bg = colors.bg, italic = true }, -- Pine color for hover
+    DashboardKey = { fg = iris, bg = colors.bg, bold = true }, -- Iris color for keys
     DashboardCard = { fg = colors.fg, bg = colors.bg },
-    DashboardCardTitle = { fg = colors.accent, bg = colors.bg, bold = true },
+    DashboardCardTitle = { fg = rose, bg = colors.bg, bold = true }, -- Rose color
     DashboardCardContent = { fg = colors.fg, bg = colors.bg },
     DashboardList = { fg = colors.fg, bg = colors.bg },
     DashboardListItem = { fg = colors.fg, bg = colors.bg },
-    DashboardListItemSelected = { fg = colors.accent, bg = colors.bg, bold = true },
-    DashboardListItemHover = { fg = colors.accent, bg = colors.bg, italic = true },
-    DashboardBullet = { fg = colors.accent, bg = colors.bg },
+    DashboardListItemSelected = { fg = pine, bg = colors.bg, bold = true }, -- Pine color for selection
+    DashboardListItemHover = { fg = pine, bg = colors.bg, italic = true }, -- Pine color for hover
+    DashboardBullet = { fg = iris, bg = colors.bg }, -- Iris color for bullets
     DashboardGrid = { fg = colors.fg, bg = colors.bg },
     DashboardGridItem = { fg = colors.fg, bg = colors.bg },
-    DashboardGridItemSelected = { fg = colors.accent, bg = colors.bg, bold = true },
-    DashboardGridItemHover = { fg = colors.accent, bg = colors.bg, italic = true },
+    DashboardGridItemSelected = { fg = pine, bg = colors.bg, bold = true }, -- Pine color for selection
+    DashboardGridItemHover = { fg = pine, bg = colors.bg, italic = true }, -- Pine color for hover
     DashboardProgress = { fg = colors.fg, bg = colors.bg },
-    DashboardProgressFilled = { fg = colors.accent, bg = colors.bg },
-    DashboardSearch = { fg = colors.accent, bg = colors.bg, bold = true },
-    DashboardSearchMatch = { fg = colors.accent, bg = colors.bg, bold = true, underline = true },
+    DashboardProgressFilled = { fg = rose, bg = colors.bg }, -- Rose color
+    DashboardSearch = { fg = iris, bg = colors.bg, bold = true }, -- Iris color for search
+    DashboardSearchMatch = { fg = iris, bg = colors.bg, bold = true, underline = true }, -- Iris color for search matches
     DashboardHelp = { fg = colors.fg, bg = colors.bg, italic = true },
-    DashboardHelpKey = { fg = colors.accent, bg = colors.bg, bold = true },
-    DashboardIcon = { fg = colors.accent, bg = colors.bg },
+    DashboardHelpKey = { fg = iris, bg = colors.bg, bold = true }, -- Iris color for help keys
+    DashboardIcon = { fg = iris, bg = colors.bg }, -- Iris color for icons
     DashboardStatus = { fg = colors.fg, bg = colors.bg },
-    DashboardStatusSuccess = { fg = colors.success or "#9ece6a", bg = colors.bg },
-    DashboardStatusWarning = { fg = colors.warning or "#e0af68", bg = colors.bg },
-    DashboardStatusError = { fg = colors.error or "#f7768e", bg = colors.bg },
-    DashboardStatusInfo = { fg = colors.info or "#7aa2f7", bg = colors.bg },
+    DashboardStatusSuccess = { fg = foam, bg = colors.bg }, -- Foam color
+    DashboardStatusWarning = { fg = gold, bg = colors.bg }, -- Gold color
+    DashboardStatusError = { fg = rose, bg = colors.bg }, -- Love (Rose) color
+    DashboardStatusInfo = { fg = pine, bg = colors.bg }, -- Pine color
   }
   
   -- Apply highlights

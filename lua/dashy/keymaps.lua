@@ -324,7 +324,7 @@ function M.setup_dashboard_keymaps(bufnr)
         end
     end)
     
-    -- Add basic menu navigation
+    -- Add basic menu navigation with highlight updates
     vim.keymap.set("n", "j", function()
         -- Move down one row
         local cursor = vim.api.nvim_win_get_cursor(0)
@@ -368,11 +368,16 @@ function M.setup_dashboard_win_keymaps(win_id)
     -- Set window-local options
     vim.api.nvim_win_set_option(win_id, "number", false)
     vim.api.nvim_win_set_option(win_id, "relativenumber", false)
-    vim.api.nvim_win_set_option(win_id, "cursorline", false)
+    vim.api.nvim_win_set_option(win_id, "cursorline", true)  -- Enable cursorline for highlighting
     vim.api.nvim_win_set_option(win_id, "cursorcolumn", false)
     vim.api.nvim_win_set_option(win_id, "foldcolumn", "0")
     vim.api.nvim_win_set_option(win_id, "signcolumn", "no")
     vim.api.nvim_win_set_option(win_id, "colorcolumn", "")
+    
+    -- Set the cursorline highlight to use DashboardCenterCursor
+    local buf_id = vim.api.nvim_win_get_buf(win_id)
+    vim.api.nvim_win_set_hl_ns(win_id, vim.api.nvim_create_namespace("dashy_highlights"))
+    vim.api.nvim_set_hl(0, "CursorLine", { link = "DashboardCenterCursor" })
 end
 
 -- Execute a keymap action
