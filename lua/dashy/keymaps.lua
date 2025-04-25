@@ -271,8 +271,10 @@ function M.setup_dashboard_keymaps(bufnr)
         desc = "Execute selection",
     })
 
-    -- Set up 'q' to close the buffer
-    vim.keymap.set("n", "q", "<cmd>bdelete<CR>", {
+    -- Set up 'q' to close the buffer using the quit action
+    vim.keymap.set("n", "q", function()
+        actions.quit()
+    end, {
         buffer = bufnr,
         silent = true,
         noremap = true,
