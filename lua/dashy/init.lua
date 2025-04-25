@@ -106,6 +106,9 @@ function Dashy.setup(opts)
     return Dashy
   end
 
+  -- Set up notification handling immediately
+  Dashy._setup_notification_handling()
+
   -- Load and merge configurations
   Dashy.config = vim.tbl_deep_extend("force", Dashy._DEFAULT_CONFIG, opts or {})
 
@@ -182,6 +185,16 @@ function Dashy.setup(opts)
       end
     end,
     desc = "Redraw Dashy on resize",
+  })
+  
+  -- Ensure proper cleanup when Neovim exits
+  vim.api.nvim_create_autocmd("VimLeavePre", {
+    group = augroup,
+    callback = function()
+      -- Restore original notification function
+      Dashy._restore_notification_handling()
+    end,
+    desc = "Restore notification handling on exit",
   })
 
   Dashy.initialized = true
@@ -263,9 +276,6 @@ function Dashy.open()
     vim.notify("Please call Dashy.setup() before opening", vim.log.levels.ERROR)
     return false
   end
-
-  -- Set up notification handling
-  Dashy._setup_notification_handling()
 
   -- Load required modules for opening
   local layout = Dashy.safe_require("dashy.layout")
