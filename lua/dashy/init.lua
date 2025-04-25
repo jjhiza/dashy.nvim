@@ -15,9 +15,11 @@ local ns = vim.api.nvim_create_namespace("dashy")
 ---@field private ns number The namespace ID for Dashy
 ---@field private initialized boolean Whether Dashy has been initialized
 ---@field private config table Configuration options
+---@field private _original_notify function? The original vim.notify function
 local Dashy = {
   ns = ns,
   initialized = false,
+  _original_notify = nil,
 }
 
 -- Safe requiring of modules with error handling
@@ -186,6 +188,76 @@ function Dashy.setup(opts)
   return Dashy
 end
 
+-- Custom notify function to filter Dashy notifications
+---@param msg string Message to notify
+---@param level number|nil Log level
+---@param opts table|nil Notification options
+Dashy.notify = function(msg, level, opts)
+  -- Default options
+  opts = opts or {}
+  level = level or vim.log.levels.INFO
+  
+  -- Only allow ERROR level messages for Dashy to be shown while dashboard is visible
+  if opts.dashy_notification and Dashy._is_dashboard_active() then
+    if level < vim.log.levels.ERROR then
+      -- Silently log but don't show notification
+      if vim.fn.has('nvim-0.10.0') == 1 then
+        vim.log.debug(msg)
+      end
+      return
+    end
+  end
+  
+  -- Use original notify for non-Dashy notifications or allowed Dashy notifications
+  if Dashy._original_notify then
+    Dashy._original_notify(msg, level, opts)
+  else
+    -- Fallback if original notify hasn't been saved yet
+    vim.api.nvim_echo({{msg, level == vim.log.levels.ERROR and "ErrorMsg" or nil}}, true, {})
+  end
+end
+
+-- Check if dashboard is currently active
+---@return boolean is_active Whether the dashboard is active
+Dashy._is_dashboard_active = function()
+  local layout = Dashy.safe_require("dashy.layout")
+  return layout and layout.is_visible()
+end
+
+-- Override vim.notify when entering dashboard
+Dashy._setup_notification_handling = function()
+  -- Save original notify function if not already saved
+  if not Dashy._original_notify then
+    Dashy._original_notify = vim.notify
+    
+    -- Override vim.notify with our filtered version
+    vim.notify = function(msg, level, opts)
+      opts = opts or {}
+      
+      -- Check if it's a Dashy notification
+      if type(msg) == "string" and (
+         msg:match("^Dashy") or 
+         msg:match("dashboard") or
+         msg:match("theme module") or
+         msg:match("highlights")
+      ) then
+        opts.dashy_notification = true
+      end
+      
+      -- Call our custom notify function
+      Dashy.notify(msg, level, opts)
+    end
+  end
+end
+
+-- Restore original notification function
+Dashy._restore_notification_handling = function()
+  if Dashy._original_notify then
+    vim.notify = Dashy._original_notify
+    Dashy._original_notify = nil
+  end
+end
+
 -- Open the Dashy dashboard
 ---@return boolean success Whether opening was successful
 function Dashy.open()
@@ -194,6 +266,9 @@ function Dashy.open()
     vim.notify("Please call Dashy.setup() before opening", vim.log.levels.ERROR)
     return false
   end
+
+  -- Set up notification handling
+  Dashy._setup_notification_handling()
 
   -- Load required modules for opening
   local layout = Dashy.safe_require("dashy.layout")
@@ -225,6 +300,9 @@ function Dashy.close()
   local success, err = pcall(function()
     layout.destroy()
   end)
+
+  -- Restore original notification function
+  Dashy._restore_notification_handling()
 
   if not success then
     vim.notify("Failed to close Dashy: " .. err, vim.log.levels.ERROR)
