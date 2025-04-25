@@ -41,16 +41,16 @@ function M.setup(config)
     
     -- Dashboard center menu
     DashboardCenter = { fg = fg, bg = bg },
-    DashboardCenterCursor = { fg = secondary, bg = bg, bold = true }, -- Pine color for cursor line
+    DashboardCenterCursor = { fg = accent, bg = bg, bold = true }, -- Use accent color (purple) for cursor line
     
     -- Dashboard sections
-    DashboardSection = { fg = "#c4a7e7", bg = bg, bold = true }, -- Iris color for sections
+    DashboardSection = { fg = iris, bg = bg, bold = true }, -- Iris color for sections
     DashboardSubsection = { fg = fg, bg = bg, italic = true },
     
     -- Dashboard items
-    DashboardItem = { fg = fg, bg = bg },
-    DashboardItemSelected = { fg = "#31748f", bg = bg, bold = true }, -- Pine color for selection
-    DashboardItemHover = { fg = "#31748f", bg = bg, italic = true }, -- Pine color for hover
+    DashboardItem = { fg = pine, bg = bg }, -- Pine color for normal items
+    DashboardItemSelected = { fg = rose, bg = bg, bold = true }, -- Rose color for selected items
+    DashboardItemHover = { fg = foam, bg = bg, italic = true }, -- Foam color for hover
     
     -- Dashboard buttons
     DashboardButton = { fg = fg, bg = bg },
@@ -89,7 +89,12 @@ function M.setup(config)
     DashboardHelpKey = { fg = "#c4a7e7", bg = bg, bold = true }, -- Iris color for help keys
     
     -- Dashboard icons
-    DashboardIcon = { fg = "#c4a7e7", bg = bg }, -- Iris color for icons
+    DashboardIcon = { fg = gold, bg = bg }, -- Gold color for icons
+    DashboardIconSelected = { fg = rose, bg = bg, bold = true }, -- Rose color for selected icons
+    
+    -- Dashboard shortcuts
+    DashboardShortcut = { fg = iris, bg = bg, bold = true }, -- Iris color for shortcuts
+    DashboardShortcutSelected = { fg = rose, bg = bg, bold = true }, -- Rose color for selected shortcuts
     
     -- Dashboard status
     DashboardStatus = { fg = fg, bg = bg },
@@ -138,9 +143,9 @@ function M.update_theme(theme_name)
     DashboardCenterCursor = { fg = pine, bg = colors.bg, bold = true }, -- Pine color for cursor line
     DashboardSection = { fg = iris, bg = colors.bg, bold = true }, -- Iris color for sections
     DashboardSubsection = { fg = colors.fg, bg = colors.bg, italic = true },
-    DashboardItem = { fg = colors.fg, bg = colors.bg },
-    DashboardItemSelected = { fg = pine, bg = colors.bg, bold = true }, -- Pine color for selection
-    DashboardItemHover = { fg = pine, bg = colors.bg, italic = true }, -- Pine color for hover
+    DashboardItem = { fg = pine, bg = colors.bg }, -- Pine color for normal items
+    DashboardItemSelected = { fg = rose, bg = colors.bg, bold = true }, -- Rose color for selected items
+    DashboardItemHover = { fg = foam, bg = colors.bg, italic = true }, -- Foam color for hover
     DashboardButton = { fg = colors.fg, bg = colors.bg },
     DashboardButtonSelected = { fg = pine, bg = colors.bg, bold = true }, -- Pine color for selection
     DashboardButtonHover = { fg = pine, bg = colors.bg, italic = true }, -- Pine color for hover
@@ -163,7 +168,10 @@ function M.update_theme(theme_name)
     DashboardSearchMatch = { fg = iris, bg = colors.bg, bold = true, underline = true }, -- Iris color for search matches
     DashboardHelp = { fg = colors.fg, bg = colors.bg, italic = true },
     DashboardHelpKey = { fg = iris, bg = colors.bg, bold = true }, -- Iris color for help keys
-    DashboardIcon = { fg = iris, bg = colors.bg }, -- Iris color for icons
+    DashboardIcon = { fg = gold, bg = colors.bg }, -- Gold color for icons
+    DashboardIconSelected = { fg = rose, bg = colors.bg, bold = true }, -- Rose color for selected icons
+    DashboardShortcut = { fg = iris, bg = colors.bg, bold = true }, -- Iris color for shortcuts
+    DashboardShortcutSelected = { fg = rose, bg = colors.bg, bold = true }, -- Rose color for selected shortcuts
     DashboardStatus = { fg = colors.fg, bg = colors.bg },
     DashboardStatusSuccess = { fg = foam, bg = colors.bg }, -- Foam color
     DashboardStatusWarning = { fg = gold, bg = colors.bg }, -- Gold color

@@ -116,9 +116,19 @@ function Dashy.setup(opts)
   -- Initialize configuration
   config.init(Dashy.config)
   
-  -- Initialize highlights first
+  -- Load theme first
+  local theme_name = Dashy.config.theme or "rose-pine-moon"
+  local theme = Dashy.safe_require("dashy.theme." .. theme_name)
+  if not theme then
+    vim.notify("Failed to load theme: " .. theme_name, vim.log.levels.ERROR)
+    return Dashy
+  end
+  
+  -- Initialize highlights with theme colors
   local highlights = Dashy.safe_require("dashy.highlights")
   if highlights then
+    local theme_colors = theme.get_colors()
+    Dashy.config.theme = theme_colors -- Update config with theme colors
     highlights.setup(Dashy.config)
   end
   

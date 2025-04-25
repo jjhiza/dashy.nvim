@@ -22,6 +22,20 @@ local colors = {
   error = "#eb6f92",   -- Error color (red/rose)
   info = "#3e8fb0",    -- Info color (blue)
   rose = "#eb6f92",    -- Rose color for banner
+  gold = "#f6c177",    -- Gold color
+  foam = "#9ccfd8",    -- Foam color
+  pine = "#31748f",    -- Pine color
+  iris = "#c4a7e7",    -- Iris color
+}
+
+-- Banner gradient colors (from top to bottom)
+local banner_colors = {
+  colors.rose,    -- Line 1 (rose)
+  colors.gold,    -- Line 2 (gold)
+  colors.foam,    -- Line 3 (foam)
+  colors.pine,    -- Line 4 (pine)
+  colors.iris,    -- Line 5 (iris)
+  colors.accent,  -- Line 6 (accent)
 }
 
 -- Get theme colors
@@ -84,28 +98,28 @@ end
 ---@param buf_id number Buffer ID
 ---@param highlights table The highlights to apply
 function M.apply_highlights(buf_id, highlights)
-  -- Define highlight groups
-  local highlight_groups = {
-    -- Header (using Rose color)
-    { group = "DashboardHeader", line = 2, col_start = 2, col_end = 52, color = colors.rose },
-    { group = "DashboardHeader", line = 3, col_start = 2, col_end = 52, color = colors.rose },
-    { group = "DashboardHeader", line = 4, col_start = 2, col_end = 52, color = colors.rose },
-    { group = "DashboardHeader", line = 5, col_start = 2, col_end = 52, color = colors.rose },
-    { group = "DashboardHeader", line = 6, col_start = 2, col_end = 52, color = colors.rose },
-    { group = "DashboardHeader", line = 7, col_start = 2, col_end = 52, color = colors.rose },
-    { group = "DashboardHeader", line = 8, col_start = 2, col_end = 52, color = colors.rose },
-    
-    -- Footer
-    { group = "DashboardFooter", line = #highlights - 2, col_start = 2, col_end = 20 },
-  }
-
   -- Create namespace for highlights
   local ns_id = api.nvim_create_namespace("dashy_theme")
   
-  -- Define the DashboardHeader highlight with the Rose color
-  vim.api.nvim_set_hl(0, "DashboardHeader", { fg = colors.rose, bold = true })
+  -- Apply gradient colors to the banner
+  for i, line in ipairs(banner_colors) do
+    -- Define highlight group name for this line
+    local hl_group = "DashboardHeader" .. i
+    
+    -- Create the highlight group with the gradient color
+    vim.api.nvim_set_hl(0, hl_group, { fg = line, bold = true })
+    
+    -- Apply the highlight to the banner line
+    api.nvim_buf_add_highlight(buf_id, ns_id, hl_group, i + 1, 0, -1)
+  end
   
-  -- Apply highlights
+  -- Apply other highlights
+  local highlight_groups = {
+    -- Footer
+    { group = "DashboardFooter", line = #highlights - 2, col_start = 2, col_end = 20 },
+  }
+  
+  -- Apply remaining highlights
   for _, hl in ipairs(highlight_groups) do
     api.nvim_buf_add_highlight(buf_id, ns_id, hl.group, hl.line - 1, hl.col_start - 1, hl.col_end - 1)
   end
