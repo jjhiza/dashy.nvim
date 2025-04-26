@@ -55,12 +55,12 @@ function M.get_content(buf_id, win_id)
   local content = {
     header = {
       "",
-      "  ██████╗  █████╗ ███████╗██╗  ██╗██╗   ██╗",
-      "  ██╔══██╗██╔══██╗██╔════╝██║  ██║╚██╗ ██╔╝",
-      "  ██║  ██║███████║███████╗███████║ ╚████╔╝ ",
-      "  ██║  ██║██╔══██║╚════██║██╔══██║  ╚██╔╝  ",
-      "  ██████╔╝██║  ██║███████║██║  ██║   ██║   ",
-      "  ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   ",
+      "%#DashboardHeader#  ██████╗  █████╗ ███████╗██╗  ██╗██╗   ██╗%*",
+      "%#DashboardHeader#  ██╔══██╗██╔══██╗██╔════╝██║  ██║╚██╗ ██╔╝%*",
+      "%#DashboardHeader#  ██║  ██║███████║███████╗███████║ ╚████╔╝ %*",
+      "%#DashboardHeader#  ██║  ██║██╔══██║╚════██║██╔══██║  ╚██╔╝  %*",
+      "%#DashboardHeader#  ██████╔╝██║  ██║███████║██║  ██║   ██║   %*",
+      "%#DashboardHeader#  ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   %*",
       "",
     },
     center = {},
@@ -93,11 +93,6 @@ function M.apply_highlights(buf_id, highlights)
   
   -- Set up the header highlight group with Rose color
   vim.api.nvim_set_hl(0, "DashboardHeader", { fg = colors.rose, bold = true })
-  
-  -- Apply the Rose color to all header lines (lines 2-7 contain the banner)
-  for i = 2, 7 do
-    vim.api.nvim_buf_add_highlight(buf_id, ns_id, "DashboardHeader", i, 0, -1)
-  end
   
   -- Apply other highlights
   local highlight_groups = {
