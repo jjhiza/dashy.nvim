@@ -126,7 +126,7 @@ function M.update_theme(theme_name)
   local colors = theme.get_colors()
   
   -- Use Rose Pink Moon colors specifically
-  local rose = "#eb6f92"  -- Love/Rose color
+  local rose = "#ea9a97"  -- Custom rose color for header
   local pine = "#31748f"  -- Pine color
   local iris = "#c4a7e7"  -- Iris color
   local foam = "#9ccfd8"  -- Foam color
