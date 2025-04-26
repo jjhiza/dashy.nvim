@@ -41,7 +41,7 @@ function M.setup(config)
     
     -- Dashboard center menu
     DashboardCenter = { fg = fg, bg = bg },
-    DashboardCenterCursor = { fg = accent, bg = bg, bold = true }, -- Use accent color (purple) for cursor line
+    DashboardCenterCursor = { fg = "#31748f", bg = bg, bold = true }, -- Pine color for cursor line
     
     -- Dashboard sections
     DashboardSection = { fg = iris, bg = bg, bold = true }, -- Iris color for sections
