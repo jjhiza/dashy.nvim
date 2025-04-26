@@ -146,6 +146,7 @@ local actions = {
                 -- Use the close method from Dashy to ensure proper cleanup
                 local dashy = require("dashy")
                 dashy.close()
+                vim.cmd("bdelete")
             else
                 -- Execute other commands normally
                 vim.cmd(action)
