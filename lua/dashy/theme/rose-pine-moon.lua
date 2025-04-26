@@ -51,16 +51,16 @@ function M.get_content(buf_id, win_id)
     return nil
   end
 
-  -- Generate content with syntax highlighting
+  -- Generate content
   local content = {
     header = {
       "",
-      "%#DashboardHeader#  ██████╗  █████╗ ███████╗██╗  ██╗██╗   ██╗%#Normal#",
-      "%#DashboardHeader#  ██╔══██╗██╔══██╗██╔════╝██║  ██║╚██╗ ██╔╝%#Normal#",
-      "%#DashboardHeader#  ██║  ██║███████║███████╗███████║ ╚████╔╝ %#Normal#",
-      "%#DashboardHeader#  ██║  ██║██╔══██║╚════██║██╔══██║  ╚██╔╝  %#Normal#",
-      "%#DashboardHeader#  ██████╔╝██║  ██║███████║██║  ██║   ██║   %#Normal#",
-      "%#DashboardHeader#  ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   %#Normal#",
+      "  ██████╗  █████╗ ███████╗██╗  ██╗██╗   ██╗",
+      "  ██╔══██╗██╔══██╗██╔════╝██║  ██║╚██╗ ██╔╝",
+      "  ██║  ██║███████║███████╗███████║ ╚████╔╝ ",
+      "  ██║  ██║██╔══██║╚════██║██╔══██║  ╚██╔╝  ",
+      "  ██████╔╝██║  ██║███████║██║  ██║   ██║   ",
+      "  ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   ",
       "",
     },
     center = {},
@@ -91,8 +91,21 @@ function M.apply_highlights(buf_id, highlights)
   -- Create namespace for highlights
   local ns_id = api.nvim_create_namespace("dashy_theme")
   
+  -- Clear any existing extmarks
+  api.nvim_buf_clear_namespace(buf_id, ns_id, 0, -1)
+  
   -- Set up the header highlight group with Rose color
   vim.api.nvim_set_hl(0, "DashboardHeader", { fg = colors.rose, bold = true })
+  
+  -- Apply extmarks to header lines (lines 2-7 contain the banner)
+  for i = 2, 7 do
+    api.nvim_buf_set_extmark(buf_id, ns_id, i, 0, {
+      end_row = i,
+      end_col = 54,  -- Length of the ASCII art line
+      hl_group = "DashboardHeader",
+      priority = 100  -- High priority to override other highlights
+    })
+  end
   
   -- Apply other highlights
   local highlight_groups = {
