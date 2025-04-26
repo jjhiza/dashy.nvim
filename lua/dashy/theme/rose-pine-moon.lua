@@ -51,16 +51,16 @@ function M.get_content(buf_id, win_id)
     return nil
   end
 
-  -- Generate content
+  -- Generate content with syntax highlighting
   local content = {
     header = {
       "",
-      "%#DashboardHeader#  ██████╗  █████╗ ███████╗██╗  ██╗██╗   ██╗%*",
-      "%#DashboardHeader#  ██╔══██╗██╔══██╗██╔════╝██║  ██║╚██╗ ██╔╝%*",
-      "%#DashboardHeader#  ██║  ██║███████║███████╗███████║ ╚████╔╝ %*",
-      "%#DashboardHeader#  ██║  ██║██╔══██║╚════██║██╔══██║  ╚██╔╝  %*",
-      "%#DashboardHeader#  ██████╔╝██║  ██║███████║██║  ██║   ██║   %*",
-      "%#DashboardHeader#  ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   %*",
+      "%#DashboardHeader#  ██████╗  █████╗ ███████╗██╗  ██╗██╗   ██╗%#Normal#",
+      "%#DashboardHeader#  ██╔══██╗██╔══██╗██╔════╝██║  ██║╚██╗ ██╔╝%#Normal#",
+      "%#DashboardHeader#  ██║  ██║███████║███████╗███████║ ╚████╔╝ %#Normal#",
+      "%#DashboardHeader#  ██║  ██║██╔══██║╚════██║██╔══██║  ╚██╔╝  %#Normal#",
+      "%#DashboardHeader#  ██████╔╝██║  ██║███████║██║  ██║   ██║   %#Normal#",
+      "%#DashboardHeader#  ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   %#Normal#",
       "",
     },
     center = {},
