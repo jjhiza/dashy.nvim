@@ -21,21 +21,11 @@ local colors = {
   warning = "#f6c177", -- Warning color (yellow)
   error = "#eb6f92",   -- Error color (red/rose)
   info = "#3e8fb0",    -- Info color (blue)
-  rose = "#eb6f92",    -- Rose color for banner
+  rose = "#ea9a97",    -- Rose color for header
   gold = "#f6c177",    -- Gold color
   foam = "#9ccfd8",    -- Foam color
   pine = "#31748f",    -- Pine color
   iris = "#c4a7e7",    -- Iris color
-}
-
--- Banner gradient colors (from top to bottom)
-local banner_colors = {
-  colors.rose,    -- Line 1 (rose)
-  colors.gold,    -- Line 2 (gold)
-  colors.foam,    -- Line 3 (foam)
-  colors.pine,    -- Line 4 (pine)
-  colors.iris,    -- Line 5 (iris)
-  colors.accent,  -- Line 6 (accent)
 }
 
 -- Get theme colors (ensure we override any defaults)
@@ -101,29 +91,17 @@ function M.apply_highlights(buf_id, highlights)
   -- Create namespace for highlights
   local ns_id = api.nvim_create_namespace("dashy_theme")
   
-  -- First, ensure our highlight groups exist with the correct colors
-  for i, color in ipairs(banner_colors) do
-    local hl_group = "DashboardHeader" .. i
-    vim.api.nvim_set_hl(0, hl_group, { fg = color, bold = true })
-  end
+  -- Set up the header highlight group with Rose color
+  vim.api.nvim_set_hl(0, "DashboardHeader", { fg = colors.rose, bold = true })
   
-  -- Apply gradient colors to the banner using ExtMarks
-  for i = 1, 6 do
-    -- Apply the highlight to the entire banner line using ExtMark
-    vim.api.nvim_buf_set_extmark(buf_id, ns_id, i + 1, 0, {
-      end_col = -1,  -- highlight to end of line
-      hl_group = "DashboardHeader" .. i,
-      priority = 100,  -- higher priority to override other highlights
-      hl_eol = true,  -- ensure highlight extends to end of line
-    })
+  -- Apply the Rose color to all header lines (lines 2-7 contain the banner)
+  for i = 2, 7 do
+    vim.api.nvim_buf_add_highlight(buf_id, ns_id, "DashboardHeader", i, 0, -1)
   end
-  
-  -- Ensure header highlight groups are properly linked
-  vim.api.nvim_set_hl(0, "DashboardHeader", { link = "DashboardHeader1", default = false })
   
   -- Apply other highlights
   local highlight_groups = {
-    -- Footer (keep footer highlight)
+    -- Footer
     { group = "DashboardFooter", line = #highlights - 2, col_start = 2, col_end = 20 },
   }
   
