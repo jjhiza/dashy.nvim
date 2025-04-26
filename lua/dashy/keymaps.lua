@@ -121,9 +121,17 @@ local actions = {
 
     -- Quit dashboard
     quit = function()
-        -- Get the Dashy module to properly close the dashboard
+        -- Store the current buffer ID
+        local current_buf = vim.api.nvim_get_current_buf()
+        
+        -- Close the dashboard first
         local dashy = require("dashy")
         dashy.close()
+        
+        -- Delete the buffer
+        if vim.api.nvim_buf_is_valid(current_buf) then
+            vim.cmd("bdelete " .. current_buf)
+        end
     end,
 
     -- Execute the currently selected action

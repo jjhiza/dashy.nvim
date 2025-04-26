@@ -91,10 +91,13 @@ function M.apply_highlights(buf_id, highlights)
   -- Create namespace for highlights
   local ns_id = api.nvim_create_namespace("dashy_theme")
   
-  -- Clear any existing extmarks
+  -- Clear any existing highlights
   api.nvim_buf_clear_namespace(buf_id, ns_id, 0, -1)
   
-  -- Apply extmarks to header lines (lines 2-7 contain the banner)
+  -- Set up the DashboardHeader highlight group with the rose color
+  vim.api.nvim_set_hl(0, "DashboardHeader", { fg = colors.rose, bg = colors.bg, bold = true })
+  
+  -- Apply header highlights (lines 2-7 contain the banner)
   for i = 2, 7 do
     api.nvim_buf_add_highlight(buf_id, ns_id, "DashboardHeader", i - 1, 0, -1)
   end
