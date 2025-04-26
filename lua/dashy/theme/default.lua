@@ -12,8 +12,8 @@ local M = {}
 local colors = {
 	-- Base colors
 	bg = "#232136", -- Base
-	fg = "#e0def4", -- Text
-	accent = "#c4a7e7", -- Iris
+	fg = "#ea9a97", -- Text #ea9a97 #e0def4
+	accent = "#3e8fb0", -- Iris
 	border = "#393552", -- Overlay
 
 	-- Status colors
@@ -24,7 +24,7 @@ local colors = {
 
 	-- Additional semantic colors
 	header = "#ea9a97", -- Rose color for ASCII art header
-	title = "#c4a7e7", -- Iris
+	title = "#ea9a97", -- Iris
 	subtitle = "#9ccfd8", -- Foam
 	muted = "#6e6a86", -- Muted
 	highlight = "#524f67", -- Highlight High
