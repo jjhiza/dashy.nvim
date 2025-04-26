@@ -73,11 +73,34 @@ function M.apply_to_buffer(buf_id, theme_name)
     return
   end
   
+  -- Set up highlights first
+  local highlights = safe_require("dashy.highlights")
+  if highlights then
+    highlights.setup({ theme = theme_module.get_colors() })
+  end
+  
   -- Get theme content and apply it
   if theme_module.get_content then
     local win_id = api.nvim_get_current_win()
     local content = theme_module.get_content(buf_id, win_id)
     if content then
+      -- Set buffer-specific highlights before content
+      local ns_id = vim.api.nvim_create_namespace("dashy_theme")
+      api.nvim_buf_clear_namespace(buf_id, ns_id, 0, -1)
+      
+      -- Apply background color
+      api.nvim_buf_set_option(buf_id, "winhl", "Normal:DashboardNormal,EndOfBuffer:DashboardEndOfBuffer")
+      
+      -- Apply border highlights if window exists
+      if win_id then
+        api.nvim_win_set_option(win_id, "winhl", "Normal:DashboardNormal,EndOfBuffer:DashboardEndOfBuffer")
+      end
+      
+      -- Apply theme highlights
+      if theme_module.apply_highlights then
+        theme_module.apply_highlights(buf_id, content.header)
+      end
+      
       -- Combine all content
       local lines = {}
       
@@ -146,29 +169,11 @@ function M.apply_to_buffer(buf_id, theme_name)
       api.nvim_buf_set_option(buf_id, "modifiable", true)
       api.nvim_buf_set_lines(buf_id, 0, -1, false, lines)
       api.nvim_buf_set_option(buf_id, "modifiable", false)
-      
-      -- Apply theme highlights
-      if theme_module.apply_highlights then
-        theme_module.apply_highlights(buf_id, lines)
-      end
     else
       vim.notify("No content received from theme module", vim.log.levels.ERROR)
     end
   else
     vim.notify("Theme module does not have get_content function", vim.log.levels.ERROR)
-  end
-  
-  -- Set buffer-specific highlights
-  local ns_id = vim.api.nvim_create_namespace("dashy_theme")
-  api.nvim_buf_clear_namespace(buf_id, ns_id, 0, -1)
-  
-  -- Apply background color
-  api.nvim_buf_set_option(buf_id, "winhl", string.format("Normal:DashboardNormal,EndOfBuffer:DashboardEndOfBuffer"))
-  
-  -- Apply border highlights if window exists
-  local win_id = api.nvim_get_current_win()
-  if win_id then
-    api.nvim_win_set_option(win_id, "winhl", string.format("Normal:DashboardNormal,EndOfBuffer:DashboardEndOfBuffer"))
   end
 end
 
