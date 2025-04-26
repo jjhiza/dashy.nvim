@@ -12,8 +12,8 @@ local M = {}
 local colors = {
 	-- Base colors
 	bg = "#232136", -- Base
-	fg = "#ea9a97", -- Text #ea9a97 #e0def4
-	accent = "#3e8fb0", -- Iris
+	fg = "#e0def4", -- Text
+	accent = "#3e8fb0", -- Pine
 	border = "#393552", -- Overlay
 
 	-- Status colors

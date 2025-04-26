@@ -101,18 +101,17 @@ function M.apply_highlights(buf_id, highlights)
   -- Create namespace for highlights
   local ns_id = api.nvim_create_namespace("dashy_theme")
   
-  -- Apply gradient colors to the banner
-  -- The banner starts at line 2 (after the empty line) and has 6 lines of content
+  -- Apply gradient colors to the banner using ExtMarks
   for i = 1, 6 do
-    -- Define highlight group name for this line
-    local hl_group = "DashboardHeader" .. i
     local color = banner_colors[i]
-    
+    -- Apply the highlight to the entire banner line using ExtMark
+    vim.api.nvim_buf_set_extmark(buf_id, ns_id, i + 1, 0, {
+      end_col = -1,  -- highlight to end of line
+      hl_group = "DashboardHeader" .. i,
+      priority = 100,  -- higher priority to override other highlights
+    })
     -- Create the highlight group with the gradient color
-    vim.api.nvim_set_hl(0, hl_group, { fg = color, bold = true })
-    
-    -- Apply the highlight to the banner line (lines 2-7 contain the banner)
-    api.nvim_buf_add_highlight(buf_id, ns_id, hl_group, i + 1, 0, -1)
+    vim.api.nvim_set_hl(0, "DashboardHeader" .. i, { fg = color, bold = true })
   end
   
   -- Apply other highlights
@@ -125,15 +124,6 @@ function M.apply_highlights(buf_id, highlights)
   for _, hl in ipairs(highlight_groups) do
     api.nvim_buf_add_highlight(buf_id, ns_id, hl.group, hl.line - 1, hl.col_start - 1, hl.col_end - 1)
   end
-  
-  -- Debug: Print highlight application
-  vim.schedule(function()
-    print("Applied header highlights to buffer", buf_id)
-    for i = 1, 6 do
-      local hl_group = "DashboardHeader" .. i
-      print(string.format("Line %d: %s with color %s", i + 1, hl_group, banner_colors[i]))
-    end
-  end)
 end
 
 -- Return the module
