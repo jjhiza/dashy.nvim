@@ -38,7 +38,7 @@ local banner_colors = {
   colors.accent,  -- Line 6 (accent)
 }
 
--- Get theme colors
+-- Get theme colors (ensure we override any defaults)
 ---@return table
 function M.get_colors()
   return colors
@@ -101,18 +101,25 @@ function M.apply_highlights(buf_id, highlights)
   -- Create namespace for highlights
   local ns_id = api.nvim_create_namespace("dashy_theme")
   
+  -- First, ensure our highlight groups exist with the correct colors
+  for i, color in ipairs(banner_colors) do
+    local hl_group = "DashboardHeader" .. i
+    vim.api.nvim_set_hl(0, hl_group, { fg = color, bold = true })
+  end
+  
   -- Apply gradient colors to the banner using ExtMarks
   for i = 1, 6 do
-    local color = banner_colors[i]
     -- Apply the highlight to the entire banner line using ExtMark
     vim.api.nvim_buf_set_extmark(buf_id, ns_id, i + 1, 0, {
       end_col = -1,  -- highlight to end of line
       hl_group = "DashboardHeader" .. i,
       priority = 100,  -- higher priority to override other highlights
+      hl_eol = true,  -- ensure highlight extends to end of line
     })
-    -- Create the highlight group with the gradient color
-    vim.api.nvim_set_hl(0, "DashboardHeader" .. i, { fg = color, bold = true })
   end
+  
+  -- Ensure header highlight groups are properly linked
+  vim.api.nvim_set_hl(0, "DashboardHeader", { link = "DashboardHeader1", default = false })
   
   -- Apply other highlights
   local highlight_groups = {
