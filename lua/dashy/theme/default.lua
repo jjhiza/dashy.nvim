@@ -94,12 +94,12 @@ function M.get_content(bufnr, winid)
 			"╚═════╝  ╚═╝  ╚═╝ ╚══════╝ ╚═╝  ╚═╝    ╚═╝   ",
 		},
 		center = {
-			"󰮗  Find File",
-			"󰬵  Live Grep",
-			"󰷏  Recent Files",
-			"󰖟  Config",
-			"󰒲  Lazy",
-			"󰈆  Quit",
+			"[󰮗]  Find File",
+			"[󰬵]  Live Grep",
+			"[󰷏]  Recent Files",
+			"[󰖟]  Config",
+			"[󰒲]  Lazy",
+			"[󰈆]  Quit",
 		},
 		footer = {
 			"Neovim Dashboard",
