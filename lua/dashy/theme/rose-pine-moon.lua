@@ -71,6 +71,16 @@ function M.get_content(buf_id, win_id)
     },
   }
 
+  -- Add menu items
+  local menu_items = M.get_menu_items()
+  if menu_items and #menu_items > 0 then
+    table.insert(content.center, "")
+    for _, item in ipairs(menu_items) do
+      local line = string.format("  [%s] %s", item.icon, item.desc)
+      table.insert(content.center, line)
+    end
+  end
+
   -- Add shortcuts section
   local shortcut_texts = keymaps.get_shortcut_display_texts()
   if shortcut_texts and #shortcut_texts > 0 then
@@ -104,6 +114,35 @@ function M.apply_highlights(buf_id, highlights)
       local start_col = line:find("[^ ]") or 1
       local end_col = line:len()
       api.nvim_buf_add_highlight(buf_id, ns_id, "DashboardHeader", i - 1, start_col - 1, end_col)
+    end
+  end
+
+  -- Get menu items for highlighting
+  local menu_items = M.get_menu_items()
+  if menu_items and #menu_items > 0 then
+    -- Find the start of menu items (after header and spacer)
+    local menu_start = 9  -- After header (7 lines) and spacer (1 line)
+    
+    -- Apply highlights for each menu item
+    for i, item in ipairs(menu_items) do
+      local line_num = menu_start + i - 1
+      local line = highlights[line_num]
+      if line then
+        -- Find icon position
+        local icon_start = line:find("%[") + 1
+        local icon_end = line:find("%]") - 1
+        if icon_start and icon_end then
+          -- Highlight icon
+          api.nvim_buf_add_highlight(buf_id, ns_id, item.icon_hl, line_num - 1, icon_start - 1, icon_end)
+        end
+        
+        -- Find description position
+        local desc_start = line:find(item.desc)
+        if desc_start then
+          -- Highlight description
+          api.nvim_buf_add_highlight(buf_id, ns_id, item.desc_hl, line_num - 1, desc_start - 1, desc_start + #item.desc - 1)
+        end
+      end
     end
   end
   
