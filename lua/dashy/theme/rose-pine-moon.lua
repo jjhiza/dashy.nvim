@@ -119,5 +119,48 @@ function M.apply_highlights(buf_id, highlights)
   end
 end
 
+-- Get menu items
+---@return table
+function M.get_menu_items()
+  -- Get configuration
+  local config = require("dashy.config")
+  if not config then
+    return {}
+  end
+
+  -- Get full config
+  local cfg = config.get()
+  
+  -- Return custom menu items if configured, otherwise return default items
+  if cfg.sections and cfg.sections.center and cfg.sections.center.menu then
+    return cfg.sections.center.menu
+  end
+
+  -- Default menu items
+  return {
+    {
+      icon = "󰈞",
+      icon_hl = "DashyIconFile",
+      desc = "Find File",
+      desc_hl = "DashyDesc",
+      action = "Telescope find_files"
+    },
+    {
+      icon = "󰈢",
+      icon_hl = "DashyIconFile",
+      desc = "New File",
+      desc_hl = "DashyDesc",
+      action = "enew"
+    },
+    {
+      icon = "󰈆",
+      icon_hl = "DashyIconQuit",
+      desc = "Quit",
+      desc_hl = "DashyDesc",
+      action = "qa"
+    }
+  }
+end
+
 -- Return the module
 return M 
