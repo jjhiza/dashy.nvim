@@ -99,7 +99,12 @@ function M.apply_highlights(buf_id, highlights)
   
   -- Apply header highlights (lines 2-7 contain the banner)
   for i = 2, 7 do
-    api.nvim_buf_add_highlight(buf_id, ns_id, "DashboardHeader", i - 1, 0, -1)
+    local line = highlights[i - 1]
+    if line then
+      local start_col = line:find("[^ ]") or 1
+      local end_col = line:len()
+      api.nvim_buf_add_highlight(buf_id, ns_id, "DashboardHeader", i - 1, start_col - 1, end_col)
+    end
   end
   
   -- Apply other highlights
